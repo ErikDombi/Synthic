@@ -1,0 +1,63 @@
+﻿@page "/Editor"
+
+<div class="header">
+    <span><span class="fw-bold">Synthic</span>.fm</span>
+</div>
+<div class="editor">
+    <!-- Tabs and Content area -->
+    <div class="editor-top">
+        <div class="editor-player">
+            <div class="player" id="player"></div>
+        </div>
+        <div class="editor-content">
+            <DynamicComponent Type="@selectedPage"></DynamicComponent>
+        </div>
+    </div>
+
+    <!-- Timeline & Track Control Area -->
+    <div class="editor-bottom">
+        <div class="editor-nav">
+                    <div class="nav-links">
+                        <a class="nav-active-page" @onclick="@(() => SelectPage(typeof(MetadataPage)))">Metadata</a>
+                        <a @onclick="@(() => SelectPage(typeof(PlayerPage)))">Editor</a>
+                        <a @onclick="@(() => SelectPage(typeof(TracksPage)))">Tracks</a>
+                        <a @onclick="@(() => SelectPage(typeof(ExportPage)))">Export</a>
+                    </div>
+                </div>
+        <div class="editor-controls">
+            <div class="controls">
+                <div class="current-track">
+                    <div class="track-info">
+                        <span class="track-title">One Girl</span>
+                        <span class="track-artist">Skeler</span>
+                    </div>
+                    <div class="track-art">
+
+                    </div>
+                </div>
+                <div class="h-div"></div>
+                <span @onclick="@LastTrack" class="icon">⏮</span>
+                <span class="icon playPauseButton">▶</span>
+                <span @onclick="@NextTrack" class="icon">⏭</span>
+                <span class="icon repeat-btn">🔂</span>
+                <div class="h-div"></div>
+                <span class="current-time">00:00:00</span>
+                <div class="music-progress-bar">
+                    <div class="current-progress"></div>
+                </div>
+                <span class="song-length">--:--:--</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<JSLoader ComponentName="Editor"></JSLoader>
+
+@code {
+    private Type? selectedPage = typeof(MetadataPage);
+
+    private void SelectPage(Type type)
+    {
+        selectedPage = type;
+    }
+}

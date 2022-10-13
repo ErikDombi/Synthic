@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synthic", "Synthic\Synthic.csproj", "{BA58E8A1-88BF-4145-98A7-FD1887083028}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synthic.Api", "Synthic.Api\Synthic.Api.csproj", "{B777CF97-49E4-4C91-9C51-352458247FBA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BA58E8A1-88BF-4145-98A7-FD1887083028}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA58E8A1-88BF-4145-98A7-FD1887083028}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA58E8A1-88BF-4145-98A7-FD1887083028}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA58E8A1-88BF-4145-98A7-FD1887083028}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B777CF97-49E4-4C91-9C51-352458247FBA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B777CF97-49E4-4C91-9C51-352458247FBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B777CF97-49E4-4C91-9C51-352458247FBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B777CF97-49E4-4C91-9C51-352458247FBA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

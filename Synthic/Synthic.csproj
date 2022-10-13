@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="BlazorComponentUtilities" Version="1.8.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.7" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.7" PrivateAssets="all" />
+        <PackageReference Include="RestEase" Version="1.5.7" />
+        <PackageReference Include="YoutubeExplode" Version="6.2.1" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <Watch Include="wwwroot\src\*.js" />
+        <None Update="wwwroot\src\*.js" watch="true" />
+    </ItemGroup>
+    
+    <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+        <Exec Command="npm install" WorkingDirectory="." />
+        <Exec Command="npm run build" WorkingDirectory="." />
+    </Target>
+
+</Project>

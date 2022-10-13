@@ -1,0 +1,16 @@
+﻿@using Synthic.Helpers
+<div class="tracks-page">
+    <div class="left-sidebar">
+        @foreach (var track in Editor.Album.Tracks)
+        {
+            <div class="entry">@track.Name</div>
+        }
+    </div>
+</div>
+
+
+@code {
+    [Inject]
+    private EditorInstance Editor { get; set; }
+
+}
