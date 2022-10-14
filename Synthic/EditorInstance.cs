@@ -69,12 +69,13 @@ public class EditorInstance
                 if (match.Value.Split(":")[0].Length == 1)
                     value = "0" + value;
                 string finalValue = line.Replace(match.Value, "").Trim(new []{'|', '-', ' ', '•'});
-                tracks.Add(new Track()
-                {
-                    Name = NameHelper.GetName(finalValue),
-                    Artist = NameHelper.GetArtist(finalValue, Album.Artist),
-                    Timestamp = TimeSpan.ParseExact(value, @"hh\:mm\:ss", CultureInfo.InvariantCulture, TimeSpanStyles.None).TotalSeconds,
-                });
+                tracks.Add(
+                    new Track(
+                        NameHelper.GetName(finalValue),
+                        NameHelper.GetArtist(finalValue, Album.Artist),
+                        TimeSpan.ParseExact(value, @"hh\:mm\:ss", CultureInfo.InvariantCulture, TimeSpanStyles.None).TotalSeconds
+                    )
+                );
             }
         }
 

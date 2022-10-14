@@ -30,3 +30,60 @@
 .entry:hover {
     background-color: #242424;
 }
+
+.subpage-content {
+    width: 100%;
+    overflow: auto;
+}
+
+.metadata {
+    max-height: 100%;
+    width: 100%;
+}
+
+.add-metadata-btn {
+    width: 316px;
+    height: 36px;
+    text-align: center;
+    font-weight: bold;
+    color: white;
+    margin: 10px;
+    margin-top: 0px !important;
+    border: 2px solid transparent;
+    position: relative;
+}
+
+.add-metadata-btn:focus-within {
+    border: 2px solid #3c50fa;
+}
+
+.absolute {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    transition: left 0.1s ease-out;
+}
+
+.custom-metadata-name {
+    right: 30% !important;
+    background: #2c2c2c;
+    color: white;
+    border: none;
+    outline: none;
+    padding: 4px 10px;
+}
+
+.right {
+    left: 70%;
+}
+
+.custom-metadata-add {
+    background: #3c50fa;
+    border:none;
+    color: white;
+    outline: none !important;
+    font-weight: bold;
+    padding: 4px 10px;
+}

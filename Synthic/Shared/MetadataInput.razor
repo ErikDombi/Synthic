@@ -1,0 +1,34 @@
+﻿@using Synthic.Helpers
+@typeparam PropType
+
+<div class="metadata-input">
+    <span>@Title</span>
+    <input value="@Property" placeholder="" @oninput="OnChange"/>
+    @if (Custom == true)
+    {
+        <button @onclick="(() => OnDelete.Invoke())">x</button>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public PropType Property { get; set; }
+
+    [Parameter]
+    public string Title { get; set; }
+
+    [Parameter]
+    public Action<PropType> Callback { get; set; }
+
+    [Parameter]
+    public Action? OnDelete { get; set; }
+
+    [Parameter]
+    public bool? Custom { get; set; } = false;
+
+    private void OnChange(ChangeEventArgs changeEvent)
+    {
+        Property = (PropType)Convert.ChangeType(changeEvent.Value, typeof(PropType));
+        Callback.Invoke(Property);
+    }
+}

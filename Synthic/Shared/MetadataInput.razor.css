@@ -1,0 +1,50 @@
+﻿.metadata-input {
+    display: flex;
+    flex-direction: row;
+    margin: 10px;
+    border: 2px solid transparent;
+    width: 316px;
+    position: relative;
+}
+
+.metadata-input:focus-within {
+    border: 2px solid #3c50fa;
+}
+
+.metadata-input > * {
+    padding: 4px 10px;
+}
+
+.metadata-input > span {
+    background: #3c50fa;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    min-width: 25%;
+}
+
+.metadata-input > input {
+    flex-grow: 1;
+    background: #2c2c2c;
+    border: none;
+    outline: none;
+    color: white;
+}
+
+.metadata-input > button {
+    border: none;
+    background: #ff4641;
+    color: white;
+    font-weight: bold;
+    position: absolute;
+    left: calc(100% - 32px);
+    top: 0;
+    right: 0;
+    bottom: 0;
+    display: none;
+    text-align: center;
+}
+
+.metadata-input:hover > button {
+    display: initial;
+}
