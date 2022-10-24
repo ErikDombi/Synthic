@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using AngleSharp.Common;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using Synthic.Extensions;
 using Synthic.Helpers;
 using Synthic.Services;
 using YoutubeExplode.Videos;
@@ -16,8 +17,8 @@ public class EditorInstance
 
     #region Injected Properties
     
-    //[Inject]
-    //public IYouTubeDownloadApi? YoutubeDownloadApi { get; set; }
+    [Inject]
+    public IYouTubeDownloadApi YouTubeDownloadApi { get; set; }
 
     [Inject]
     public IJSRuntime JsRuntime { get; set; }
@@ -30,7 +31,8 @@ public class EditorInstance
 
     public Video? VideoMetadata;
     private IEnumerable<AudioOnlyStreamInfo> AudioOnlyStreams = Enumerable.Empty<AudioOnlyStreamInfo>();
-
+    private bool ExtractOpus = true; // TODO: Hook this property up to the frontend
+    
     public Album Album { get; set; } = new Album();
 
     #endregion
@@ -80,5 +82,39 @@ public class EditorInstance
         }
 
         return tracks;
+    }
+
+    public async Task StartDownload()
+    {
+        try
+        {
+            // TODO: Let the user chose the export stream
+            var streamInfo = AudioOnlyStreams.First();
+
+            Stream stream;
+            if (streamInfo.IsOpus() && ExtractOpus)
+                stream = await YouTubeDownloadApi.GetOggOpusAudioStreamAsync(streamInfo);
+            else
+                stream = await YouTubeDownloadApi.GetAudioStreamAsync(streamInfo);
+
+            var fileName = GenerateFileName(streamInfo);
+
+            using var memoryStream = new MemoryStream();
+
+            long lastValue = 0;
+            await stream.CopyToAsync(memoryStream);
+
+            byte[] array = memoryStream.ToArray();
+        }
+        catch
+        {
+            // TODO: Error Handling
+        }
+    }
+
+    private string GenerateFileName(AudioOnlyStreamInfo streamInfo)
+    {
+        // TODO: Implement naming convention
+        return "test.mp3";
     }
 }
