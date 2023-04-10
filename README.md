@@ -6,6 +6,7 @@ Synthic is a .NET Blazor application used to automate downloading music compilat
 
 - [Git](https://git-scm.com/downloads)
 - [Docker](https://www.docker.com/products/docker-desktop)
+- [OpenSSL](https://www.openssl.org/source)
 
 ## Getting Started
 

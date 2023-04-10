@@ -33,7 +33,7 @@ RUN dotnet publish "Synthic.Api.csproj" -c Release -o /app/publish
 # Final stage with NGINX
 FROM nginx:stable-alpine AS final
 WORKDIR /app
-COPY --from=publish-webasm /app/publish ./Synthic-Client/
+COPY --from=publish-webasm /app/publish/wwwroot ./Synthic-Client/
 COPY --from=publish-api /app/publish ./Synthic-API/
 
 # Setup NGINX logging files
@@ -51,9 +51,7 @@ RUN apk add --no-cache ca-certificates \
     libintl \
     libssl1.1 \
     libstdc++ \
-    zlib \
-    certbot \
-    certbot-nginx
+    zlib
 
 # Install .NET Core runtime
 RUN apk add aspnetcore7-runtime
@@ -62,7 +60,9 @@ RUN apk add aspnetcore7-runtime
 RUN rm /etc/nginx/conf.d/default.conf
 
 # Add the custom NGINX configuration file
-COPY nginx.conf /etc/nginx/conf.d/
+# COPY ./setup/certs/ /app/certs/
+COPY ./setup/nginx.conf /etc/nginx/conf.d/default.conf.unsafe
+RUN cat /etc/nginx/conf.d/default.conf.unsafe > /etc/nginx/conf.d/default.conf
 
 # Expose the ports for HTTP and HTTPS
 EXPOSE 80 443 5059
