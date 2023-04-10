@@ -4,17 +4,20 @@
     <div class="left-sidebar">
         @foreach (var track in Editor.Album.Tracks)
         {
-            <div class="entry" @onclick="(() => LoadTrack(track))">@track.Name</div>
+            <div class="entry" @onclick="(() => LoadTrack(track))">@track.Metadata.Title</div>
         }
     </div>
     <div class="subpage-content">
+        <p>Any blank fields will be inherited from the Album Metadata</p>
         <div class="metadata">
-            <MetadataInput Property="ActiveTrack.Metadata.Title" Title="Title" Callback="(x) => ActiveTrack.Metadata.Title = x"/>
-            <MetadataInput Property="ActiveTrack.Metadata.Artist" Title="Artist" Callback="(x) => ActiveTrack.Metadata.Artist = x"/>
-            <MetadataInput Property="ActiveTrack.Metadata.Composer" Title="Composer" Callback="(x) => ActiveTrack.Metadata.Composer = x"/>
-            <MetadataInput Property="ActiveTrack.Metadata.Year" Title="Year" Callback="(x) => ActiveTrack.Metadata.Year = x"/>
-            <MetadataInput Property="ActiveTrack.Metadata.Track" Title="Track" Callback="(x) => ActiveTrack.Metadata.Track = x"/>
-            <MetadataInput Property="ActiveTrack.Metadata.Genre" Title="Genre" Callback="(x) => ActiveTrack.Metadata.Genre = x"/>
+            <img src="@GetImageSource()" style="max-width: 300px;cursor: pointer;" onclick="document.querySelector('.file-uploader').click()"/>
+            <InputFile hidden="true" class="file-uploader" OnChange="@LoadFile" />
+            <MetadataInput Property="ActiveTrack.Metadata.Title" Title="Title" Callback="(x) => { ActiveTrack.Metadata.Title = x; Editor.PushChangesToUI(); }"/>
+            <MetadataInput Property="ActiveTrack.Metadata.Artist" Placeholder="@Editor.Album.Metadata.Artist" Title="Artist" Callback="(x) => { ActiveTrack.Metadata.Artist = x; Editor.PushChangesToUI(); }"/>
+            <MetadataInput Property="ActiveTrack.Metadata.Composer" Placeholder="@Editor.Album.Metadata.Composer" Title="Composer" Callback="(x) => { ActiveTrack.Metadata.Composer = x; Editor.PushChangesToUI(); }"/>
+            <MetadataInput Property="ActiveTrack.Metadata.Year" Placeholder="@Editor.Album.Metadata.Year.ToString()" Title="Year" Callback="(x) => { ActiveTrack.Metadata.Year = x; Editor.PushChangesToUI(); }"/>
+            <MetadataInput Property="ActiveTrack.Metadata.Track" Title="Track" Callback="(x) => { ActiveTrack.Metadata.Track = x; Editor.PushChangesToUI(); }"/>
+            <MetadataInput Property="ActiveTrack.Metadata.Genre" Placeholder="@Editor.Album.Metadata.Genre" Title="Genre" Callback="(x) => { ActiveTrack.Metadata.Genre = x; Editor.PushChangesToUI(); }"/>
             @foreach (var metadata in ActiveTrack.Metadata.CustomMetadata)
             {
                 <MetadataInput
@@ -39,6 +42,45 @@
     private string StageString = "Add Custom Field";
     private string StageClass = "fill";
     private string NewFieldName = "";
+
+    private string GetImageSource()
+    {
+        Art art = ActiveTrack.CoverArt ?? Editor.Album.CoverArt;
+
+        if (art is null)
+            return "/img/pending.jpg";
+
+        return $"data:{art.ContentType};base64,{Convert.ToBase64String(art.Content)}";
+    }
+    
+    private void LoadFile(InputFileChangeEventArgs e)
+    {
+        Task.Run(async () =>
+        {
+            try
+            {
+                var artFile = ActiveTrack.UUID + Path.GetExtension(e.File.Name);
+                using (var artMemoryStream = new MemoryStream())
+                {
+                    var stream = e.File.OpenReadStream(15000000L);
+                    await stream.CopyToAsync(artMemoryStream);
+
+                    ActiveTrack.CoverArt = new Art()
+                    {
+                        FileName = artFile,
+                        ContentType = e.File.ContentType
+                    };
+                    await ActiveTrack.CoverArt.SetContentAsync(artMemoryStream);
+                    
+                    StateHasChanged();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        });
+    }
     
     private void NextStage()
     {
@@ -58,7 +100,6 @@
         }
     }
     
-    
     private Track ActiveTrack;
 
     protected override void OnParametersSet()
@@ -69,5 +110,6 @@
     private void LoadTrack(Track track)
     {
         ActiveTrack = track;
+        StateHasChanged();
     }
 }

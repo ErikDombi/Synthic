@@ -1,4 +1,6 @@
 ﻿@page "/Editor"
+@using Synthic.Helpers
+@using System.Web
 
 <div class="header">
     <span><span class="fw-bold">Synthic</span>.fm</span>
@@ -17,19 +19,19 @@
     <!-- Timeline & Track Control Area -->
     <div class="editor-bottom">
         <div class="editor-nav">
-                    <div class="nav-links">
-                        <a class="nav-active-page" @onclick="@(() => SelectPage(typeof(MetadataPage)))">Metadata</a>
-                        <a @onclick="@(() => SelectPage(typeof(PlayerPage)))">Editor</a>
-                        <a @onclick="@(() => SelectPage(typeof(TracksPage)))">Tracks</a>
-                        <a @onclick="@(() => SelectPage(typeof(ExportPage)))">Export</a>
-                    </div>
-                </div>
+            <div class="nav-links">
+                <a class="nav-active-page" @onclick="@(() => SelectPage(typeof(MetadataPage)))">Metadata</a>
+                <a @onclick="@(() => SelectPage(typeof(PlayerPage)))">Editor</a>
+                <a @onclick="@(() => SelectPage(typeof(TracksPage)))">Tracks</a>
+                <a @onclick="@(() => SelectPage(typeof(ExportPage)))">Export</a>
+            </div>
+        </div>
         <div class="editor-controls">
             <div class="controls">
                 <div class="current-track">
                     <div class="track-info">
-                        <span class="track-title">One Girl</span>
-                        <span class="track-artist">Skeler</span>
+                        <span class="track-title">-</span>
+                        <span class="track-artist">-</span>
                     </div>
                     <div class="track-art">
 
@@ -51,13 +53,75 @@
     </div>
 </div>
 
+<div id="startup-modal" class="s-modal @(stage != SetupStage.Complete ? "s-modal-visible" : "")">
+    <div class="s-modal-content">
+        <div class="s-modal-body">
+            <div class="stage1 @(stage == SetupStage.UrlInput ? "d-flex" : "d-none")">
+                <MetadataInput Style="width: 90%;height: 3rem;" Class="video-url-input" Property="VideoUrl" Placeholder="https://www.youtube.com/watch?v=P4ALDytLAXQ" Title="Video URL" Callback="(x) => VideoUrl = x"/>
+                <span style="display: @(IsLoading ? "block" : "none");">Loading...</span>
+            </div>
+            <div class="stage2 @(stage == SetupStage.ProjectSettings ? "d-block" : "d-none")">
+                <div class="header-img-container">
+                    <h1>@editor?.VideoMetadata?.Title</h1>
+                    <div class="header-img"></div>
+                </div>
+                <div class="settings">
+                    <textarea class="description-input" value="@editor?.VideoMetadata?.Description" @onchange="(e) => customTimestampField = e.Value.ToString()"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="s-modal-footer">
+            <button @onclick="NextStage" class="btn btn-primary">Continue</button>
+        </div>
+    </div>
+</div>
+
 <JSLoader ComponentName="Editor"></JSLoader>
 
 @code {
+    private string? VideoUrl;
+
+    private string? customTimestampField = "";
+
+    private bool IsLoading = false;
+    
     private Type? selectedPage = typeof(MetadataPage);
 
+    private SetupStage stage = SetupStage.UrlInput;
+
+    void OnTextChanged(string value)
+    {
+        customTimestampField = value;
+    }
+    
     private void SelectPage(Type type)
     {
         selectedPage = type;
+    }
+
+    private async Task NextStage()
+    {
+        IsLoading = true;
+        StateHasChanged();
+        
+        switch (stage)
+        {
+            case SetupStage.UrlInput:
+                await LoadVideo(VideoUrl);
+                break;
+                
+            case SetupStage.ProjectSettings:
+                Uri videoUri = new Uri(VideoUrl);
+                string videoId = HttpUtility.ParseQueryString(videoUri.Query).Get("v");
+            
+                await editor.PrepareEditor(string.IsNullOrWhiteSpace(customTimestampField) ? null : customTimestampField);
+                await editor.PushChangesToUI();
+                JsCommunicator.Eval($"startPlaying(\"{videoId}\")");
+                break;
+        }
+        
+        IsLoading = false;
+        ++stage;
+        StateHasChanged();
     }
 }

@@ -1,25 +1,27 @@
 ﻿.metadata-input {
     display: flex;
     flex-direction: row;
-    margin: 10px;
+    margin-top: 10px;
     border: 2px solid transparent;
     width: 316px;
     position: relative;
+    overflow: hidden;
+    border-radius: 4px;
 }
 
 .metadata-input:focus-within {
     border: 2px solid #3c50fa;
 }
 
-.metadata-input > * {
-    padding: 4px 10px;
-}
-
-.metadata-input > span {
+.metadata-input > div {
     background: #3c50fa;
     color: white;
     font-weight: bold;
     text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px 17px;
     min-width: 25%;
 }
 
@@ -29,6 +31,7 @@
     border: none;
     outline: none;
     color: white;
+    padding: 4px 10px;
 }
 
 .metadata-input > button {

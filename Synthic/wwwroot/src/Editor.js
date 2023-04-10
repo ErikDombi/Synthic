@@ -48,33 +48,33 @@ progressBar.addEventListener('mouseup', (e) => {
     let width = rect.width;
     let progress = Math.round(x / width * 100) / 100;
     PlayerState.Timestamp = Math.max(Math.min(TrackData.Duration * progress, TrackData.Duration), 0);
-    player.seekTo(PlayerState.Timestamp);
+    ytPlayer.seekTo(PlayerState.Timestamp);
     disableRepeat();
     updateProgress();
 });
 
 let seek = (time) => {
     PlayerState.Timestamp = time;
-    player.seekTo(time);
+    ytPlayer.seekTo(time);
     disableRepeat();
     updateProgress();
 }
 
 let lastTime = 0;
 let updateProgress = () => {
-    if(Math.abs(player.getCurrentTime() - lastTime) > 4) {
+    if(Math.abs(ytPlayer.getCurrentTime() - lastTime) > 4) {
         updateRepeat();
     }
-    lastTime = player.getCurrentTime();
+    lastTime = ytPlayer.getCurrentTime();
     currentProgress.style.setProperty('width', (PlayerState.Timestamp / TrackData.Duration * 100) + '%');
     currentTime.innerText = secondsToMMSS(PlayerState.Timestamp);
     songLength.innerText = secondsToMMSS(TrackData.Duration);
-    currentTrackName.innerText = Album.Tracks.filter(x => x.Timestamp <= PlayerState.Timestamp).reverse()[0].Name;
-    currentArtistName.innerText = Album.Tracks.filter(x => x.Timestamp <= PlayerState.Timestamp).reverse()[0].Artist;
+    currentTrackName.innerText = Album.Tracks.filter(x => x.Timestamp <= PlayerState.Timestamp).reverse()[0].Metadata.Title;
+    currentArtistName.innerText = Album.Tracks.filter(x => x.Timestamp <= PlayerState.Timestamp).reverse()[0].Metadata.Artist;
     if(repeat) {
         if(PlayerState.Timestamp >= repeatFrom) {
             PlayerState.Timestamp = repeatTo;
-            player.seekTo(PlayerState.Timestamp);
+            ytPlayer.seekTo(PlayerState.Timestamp);
             updateProgress();
         }
     }
@@ -111,11 +111,11 @@ repeatTrackButton.addEventListener('mouseup', () => {
 })
 
 playPauseButton.addEventListener('mouseup', async () => {
-   let playerState = await player.getPlayerState();
+   let playerState = await ytPlayer.getPlayerState();
    if(playerState === 1) { // Video is playing
-       player.pauseVideo();
+       ytPlayer.pauseVideo();
    } else {
-       player.playVideo();
+       ytPlayer.playVideo();
    }
 });
 
@@ -133,7 +133,7 @@ let stopControls = () => {
 }
 
 let controlsTrick = async () => {
-    PlayerState.Timestamp = await player.getCurrentTime();
+    PlayerState.Timestamp = await ytPlayer.getCurrentTime();
     updateProgress();
 }
 
@@ -141,21 +141,32 @@ let controlsTrick = async () => {
 
 //#region Video Player
 
-let player = YouTubePlayer('player');
-player.loadVideoById("88NmmgMBnH4");
-await player.playVideo();
+let ytPlayer = YouTubePlayer('player');
+let startPlaying = async (id) => {
+    console.log("ID: ", id);
+    console.log(ytPlayer);
 
-player.on('stateChange', async (e) => {
-    if(e.data === 1) {
-        TrackData.Duration = await player.getDuration();
-        songLength.innerText = secondsToMMSS(TrackData.Duration);
-        startControls();
-        playPauseButton.innerText = "⏸";
-    } else if(e.data === 2) {
-        stopControls();
-        playPauseButton.innerText = "▶";
-    }
-})
+    ytPlayer.on('stateChange', async (e) => {
+        if(e.data === 1) {
+            TrackData.Duration = await ytPlayer.getDuration();
+            songLength.innerText = secondsToMMSS(TrackData.Duration);
+            startControls();
+            playPauseButton.innerText = "⏸";
+        } else if(e.data === 2) {
+            stopControls();
+            playPauseButton.innerText = "▶";
+        }
+    })
+    
+    let playerElem = document.querySelector('#player');
+    console.log('Reloading player with: ', playerElem);
+    playerElem.setAttribute('credentialless', '');
+    playerElem.setAttribute('anonymous', '');
+    playerElem.src = playerElem.src.replace('/embed/?', `/embed/${id}?`); // Reload the iframe
+    ytPlayer.setVolume(25);
+    ytPlayer.play();
+}
+
 
 //#endregion
 
@@ -169,3 +180,22 @@ pageSelectors.forEach(x => x.addEventListener('mouseup', () => {
 }))
 
 //#endregion
+
+window.saveAsFile = (fileName, base64Data) => {
+    const byteCharacters = atob(base64Data);
+    const byteNumbers = new Array(byteCharacters.length);
+
+    for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: 'application/octet-stream' });
+    const link = document.createElement('a');
+
+    link.href = URL.createObjectURL(blob);
+    link.download = fileName;
+    link.click();
+
+    URL.revokeObjectURL(link.href);
+};

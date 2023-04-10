@@ -1,1 +1,276 @@
-﻿<h3>ExportPage</h3>
+﻿@using FFmpegBlazor
+@using System.Net.Mime
+@using System.Diagnostics
+@using System.IO.Compression
+@using System.IO.Pipelines
+@using System.Text.RegularExpressions
+@using System.Web
+@using BlazorDownloadFile
+@using Newtonsoft.Json
+@using Synthic.Extensions
+@using Synthic.Helpers
+@using Synthic.Services
+@using YoutubeExplode.Videos
+@using YoutubeExplode.Videos.Streams
+
+<h3>ExportPage</h3>
+<audio controls autoplay>
+    <source src="@url" type="audio/mp3"/>
+</audio>
+<p>Progress: @pgs</p>
+<p>URL: @url</p>
+<p>URL2: @url2</p>
+<p>StreamInfo: @(SELECTEDSTREAM?.Url ?? "")</p>
+<button @onclick="@ProcessYouTubeUrlAsync">Process</button>
+<button @onclick="@DownloadFileAsync">Download</button>
+
+<EditForm Model="AudioOnlyStreamInfos">
+    <InputRadioGroup ValueChanged="@((e) => OnAudioOnlyStreamCheckedValueChanged(e))" TValue="int" ValueExpression="() => CheckedAudioOnlyStreamInfoHashCode">
+        @foreach (var info in AudioOnlyStreamInfos)
+        {
+            <br/>
+            <span>@info.GetTitle()</span>
+            <InputRadio TValue="int" Value="@info.GetHashCode()">@info.GetTitle()</InputRadio>
+        }
+    </InputRadioGroup>
+</EditForm>
+
+@code {
+
+    [Inject]
+    private EditorInstance editor { get; set; }
+
+    [Inject]
+    private IJSRuntime Runtime { get; set; }
+
+    string url;
+    string url2;
+    FFMPEG ff;
+    byte[] buffer;
+    bool started = false;
+    int pgs;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (FFmpegFactory.Runtime == null)
+        {
+            FFmpegFactory.Logger += WriteLogs;
+            FFmpegFactory.Progress += ProgressChange;
+        }
+
+        await FFmpegFactory.Init(Runtime, "https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js");
+        
+        ff = FFmpegFactory.CreateFFmpeg();
+        await ff.Load(); // Download all dependencies
+    }
+
+    private static int NoSelection = -1;
+
+    [Inject]
+    public IYouTubeDownloadApi YouTubeDownloadApi { get; set; }
+
+    //[Inject]
+    //public IBlazorDownloadFileService BlazorDownloadFileService { get; set; }
+
+    public string YouTubeUrl => editor.VideoUrl;
+
+    public bool OpusAudioStreamPresent;
+
+    public bool ExtractOpus;
+
+    public Video? VideoMetaData;
+
+    public IEnumerable<AudioOnlyStreamInfo> AudioOnlyStreamInfos = Array.Empty<AudioOnlyStreamInfo>();
+
+    public int CheckedAudioOnlyStreamInfoHashCode; // Workaround for https://github.com/stsrki/Blazorise/issues/1635        
+
+    public long Progress;
+
+    string VideoFileName;
+    
+    [Inject]
+    public IBlazorDownloadFileService BlazorDownloadFileService { get; set; }
+    
+    async Task ProcessYouTubeUrlAsync()
+    {
+        VideoMetaData = null;
+        AudioOnlyStreamInfos = Array.Empty<AudioOnlyStreamInfo>();
+        CheckedAudioOnlyStreamInfoHashCode = NoSelection;
+        Progress = 0;
+        OpusAudioStreamPresent = false;
+        ExtractOpus = false;
+
+        try
+        {
+            var taskVideoMetaData = YouTubeDownloadApi.GetVideoMetaDataAsync(YouTubeUrl);
+            var taskAudioOnlyStreamInfos = YouTubeDownloadApi.GetAudioOnlyStreamsAsync(YouTubeUrl);
+
+            await Task.WhenAll(taskVideoMetaData, taskAudioOnlyStreamInfos);
+
+            VideoMetaData = await taskVideoMetaData;
+            AudioOnlyStreamInfos = await taskAudioOnlyStreamInfos;
+
+            var highest = AudioOnlyStreamInfos.TryGetWithHighestBitrate();
+            CheckedAudioOnlyStreamInfoHashCode = highest?.GetHashCode() ?? NoSelection;
+            OpusAudioStreamPresent = AudioOnlyStreamInfos.Any(a => a.IsOpus());
+            ExtractOpus = OpusAudioStreamPresent;
+            
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.Write("Err: " + ex);
+        }
+    }
+
+    AudioOnlyStreamInfo? SELECTEDSTREAM;
+    void OnAudioOnlyStreamCheckedValueChanged(int value)
+    {
+        CheckedAudioOnlyStreamInfoHashCode = value;
+
+        SELECTEDSTREAM = AudioOnlyStreamInfos.Single(x => x.GetHashCode() == value);
+        OpusAudioStreamPresent = SELECTEDSTREAM.IsOpus();
+    }
+    
+    async Task DownloadFileAsync()
+    {
+        if (CheckedAudioOnlyStreamInfoHashCode == NoSelection)
+            return;
+
+        Progress = 0;
+        
+        try
+        {
+            var streamInfo = AudioOnlyStreamInfos.Single(x => x.GetHashCode() == CheckedAudioOnlyStreamInfoHashCode);
+            
+            Stream stream = await (streamInfo.IsOpus() && ExtractOpus ? YouTubeDownloadApi.GetOggOpusAudioStreamAsync(streamInfo) : YouTubeDownloadApi.GetAudioStreamAsync(streamInfo));
+
+            string extension = "." + (streamInfo.IsOpus() && ExtractOpus ? "opus" : streamInfo.Container.Name);
+            string resultExtension = ".mp3";
+            VideoFileName = editor.Album.UUID + extension;
+
+            using var memoryStream = new MemoryStream();
+
+            long lastValue = 0;
+            await stream.CopyToAsync(memoryStream, async (e) =>
+            {
+                Progress = 100 * e.TotalBytesRead / e.SourceLength;
+
+                if (Progress != lastValue)
+                {
+                    lastValue = Progress;
+                    StateHasChanged();
+                    await Task.Delay(5); // give the UI some time to catch up
+                }
+            });
+
+            Console.WriteLine($"Writing {VideoFileName}");
+            ff.WriteFile(VideoFileName, memoryStream.ToArray());
+
+            Dictionary<Track, string> files = new();
+            foreach (var track in editor.Album.Tracks)
+                files.Add(track, await ProcessTrack(track, resultExtension));
+
+            Console.WriteLine("Done processing all files...");
+            
+            ff.UnlinkFile(VideoFileName); // We no longer need the entire video as a whole. Free up some memory
+
+            Console.WriteLine("Starting creating of zip archive...");
+            using MemoryStream zipMemoryStream = new();
+            using (ZipArchive zipArchive = new ZipArchive(zipMemoryStream, ZipArchiveMode.Create, true))
+            {
+                foreach (var file in files)
+                {
+                    Console.WriteLine($"Archiving: {file}");
+                    var buffer = await ff.ReadFile(file.Value);
+                    var zipEntry = zipArchive.CreateEntry(file.Key.FileFriendlyName + resultExtension);
+                    using (Stream entryStream = zipEntry.Open())
+                        await entryStream.WriteAsync(buffer, 0, buffer.Length);
+                    ff.UnlinkFile(file.Value);
+                    Console.WriteLine($"Done Archiving: {file}");
+                }
+            }
+            
+            Console.WriteLine("Done! Starting Download!");
+
+            double sizeInMB = zipMemoryStream.Length / 1024.0d / 1024.0d;
+            Console.WriteLine($"File Size: {sizeInMB}mb");
+            
+            // The following line works well with a 1024 * 2000 buffer size. 
+            // If it starts acting up, lowering the value again
+            var downloadedFile = await BlazorDownloadFileService.DownloadFile($"album.zip", zipMemoryStream.ToArray(), 1024 * 10000, "application/octet-stream", async (p) =>
+            {
+                Console.WriteLine($"Download Progress: {p * 100}%");
+                await Task.Delay(0);
+            });
+            
+            Console.WriteLine(JsonConvert.SerializeObject(downloadedFile));
+            
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    async Task<string> ProcessTrack(Track track, string extension)
+    {
+        Console.WriteLine($"Processing track: {track.Name}");
+        string fileName = track.UUID + extension;
+        
+        var parameters = new List<string> { "-ss", track.Start.ToString("c"), "-to", track.End.ToString("c"), "-i", VideoFileName };
+
+        Art art = track.CoverArt ?? editor.Album.CoverArt;
+        
+        if (art is not null)
+        {
+            ff.WriteFile(art.FileName, art.Content);
+            
+            parameters.AddRange(new [] {"-i", art.FileName, "-map", "0:0", "-map", "1:0", "-metadata:s:v", "comment=Cover (front)", "-metadata:s:v", "title=Album cover", "-id3v2_version", "3"});;
+        }
+
+        foreach (var metadata in track.BuildMetadata(editor.Album))
+        {
+            parameters.Add("-metadata");
+            parameters.Add($"{metadata.Key.ToLower()}={metadata.Value}");
+        }
+        parameters.Add(fileName);
+        //parameters.AddRange(new []{"-c", "copy", fileName}); // This method is far faster, but I cannot get metadata working with it. FFMPEG does not support OPUS metadata. Odd.
+        await ff.Run(parameters.ToArray());
+
+        if (art is not null)
+            ff.UnlinkFile(art.FileName);
+        
+        Console.WriteLine($"Done processing track: {track.Name}");
+        
+        return fileName;
+    }
+
+    void ProgressChange(Progress m)
+    {
+        pgs = (int)(m.Ratio * 100.0f);
+        
+        StateHasChanged();
+    }
+
+    void WriteLogs(Logs m)
+    {
+        Console.WriteLine(m.Type + " " + m.Message);
+    }
+    
+    private string GetFileNameWithExtension(AudioOnlyStreamInfo streamInfo)
+    {
+        string extension = streamInfo.IsOpus() && ExtractOpus ? "opus" : streamInfo.Container.Name;
+
+        string fileName = GetSafeFileName(VideoMetaData?.Title ?? HttpUtility.ParseQueryString(new Uri(YouTubeUrl).Query)["v"] ?? Path.GetRandomFileName());
+
+        return $"{fileName}.{extension}";
+    }
+
+    private static string GetSafeFileName(string fileName)
+    {
+        return Regex.Replace(fileName, "[" + Regex.Escape(new string(Path.GetInvalidPathChars())) + "]", string.Empty, RegexOptions.IgnoreCase);
+    }
+
+}

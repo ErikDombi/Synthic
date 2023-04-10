@@ -20,8 +20,7 @@ public class EditorInstance
     [Inject]
     public IYouTubeDownloadApi YouTubeDownloadApi { get; set; }
 
-    [Inject]
-    public IJSRuntime JsRuntime { get; set; }
+    public JSCommunicator JsCommunicator { get; set; }
     
     #endregion
     
@@ -37,9 +36,10 @@ public class EditorInstance
 
     #endregion
 
-    public async Task ProcessVideo(IYouTubeDownloadApi YoutubeDownloadApi)
+    public async Task ProcessVideo(IYouTubeDownloadApi YoutubeDownloadApi, string videoUrl, JSCommunicator jsCommunicator)
     {
-        VideoUrl = "https://youtube.com/watch?v=88NmmgMBnH4";
+        JsCommunicator = jsCommunicator;
+        VideoUrl = videoUrl;
 
         var videoMetadataTask = YoutubeDownloadApi.GetVideoMetaDataAsync(VideoUrl);
         var audioOnlyStreamInfoTask = YoutubeDownloadApi.GetAudioOnlyStreamsAsync(VideoUrl);
@@ -49,12 +49,37 @@ public class EditorInstance
         VideoMetadata = await videoMetadataTask;
         AudioOnlyStreams = await audioOnlyStreamInfoTask;
 
-        Album.Name = NameHelper.GetName(VideoMetadata.Title);
-        Album.Artist = NameHelper.GetArtist(VideoMetadata.Title, VideoMetadata.Author.ChannelTitle);
-        Album.Tracks = GenerateTracksFromChapter(VideoMetadata.Description);
+        Album.Metadata.Title = NameHelper.GetName(VideoMetadata.Title);
+        Album.Metadata.Artist = NameHelper.GetArtist(VideoMetadata.Title, VideoMetadata.Author.ChannelTitle);
+        Album.Metadata.Year = (uint)VideoMetadata.UploadDate.Year;
     }
 
-    private List<Track> GenerateTracksFromChapter(string data)
+    public async Task PrepareEditor(string? customTimestamp = null)
+    {
+        customTimestamp ??= VideoMetadata.Description;
+        Album.Tracks = GenerateTracksFromChapters(customTimestamp);
+        for (int i = 0; i < Album.Tracks.Count; i++)
+            Album.Tracks[i].Metadata.Track = (ushort)(i + 1);
+        
+        
+        for (int i = 0; i < Album.Tracks.Count - 1; ++i)
+        {
+            var track = Album.Tracks[i];
+            var nextTrack = Album.Tracks[i + 1];
+
+            track.End = nextTrack.Start;
+        }
+
+        if(Album.Tracks.Count > 0)
+            Album.Tracks.Last().End = VideoMetadata.Duration.Value;
+    }
+
+    public async Task PushChangesToUI()
+    {
+        await JsCommunicator.Set("Album", Album);
+    }
+
+    private List<Track> GenerateTracksFromChapters(string data)
     {
         Regex timestampRegex = new Regex("(?:([0-5]?[0-9]):)?([0-5]?[0-9]):([0-5][0-9])");
 
@@ -75,46 +100,12 @@ public class EditorInstance
                     new Track(
                         NameHelper.GetName(finalValue),
                         NameHelper.GetArtist(finalValue, Album.Artist),
-                        TimeSpan.ParseExact(value, @"hh\:mm\:ss", CultureInfo.InvariantCulture, TimeSpanStyles.None).TotalSeconds
+                        TimeSpan.ParseExact(value, @"hh\:mm\:ss", CultureInfo.InvariantCulture, TimeSpanStyles.None)
                     )
                 );
             }
         }
-
+        
         return tracks;
-    }
-
-    public async Task StartDownload()
-    {
-        try
-        {
-            // TODO: Let the user chose the export stream
-            var streamInfo = AudioOnlyStreams.First();
-
-            Stream stream;
-            if (streamInfo.IsOpus() && ExtractOpus)
-                stream = await YouTubeDownloadApi.GetOggOpusAudioStreamAsync(streamInfo);
-            else
-                stream = await YouTubeDownloadApi.GetAudioStreamAsync(streamInfo);
-
-            var fileName = GenerateFileName(streamInfo);
-
-            using var memoryStream = new MemoryStream();
-
-            long lastValue = 0;
-            await stream.CopyToAsync(memoryStream);
-
-            byte[] array = memoryStream.ToArray();
-        }
-        catch
-        {
-            // TODO: Error Handling
-        }
-    }
-
-    private string GenerateFileName(AudioOnlyStreamInfo streamInfo)
-    {
-        // TODO: Implement naming convention
-        return "test.mp3";
     }
 }

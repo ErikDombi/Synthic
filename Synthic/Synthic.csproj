@@ -5,17 +5,36 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <LangVersion>11</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Blazor.Cropper" Version="1.1.4" />
         <PackageReference Include="BlazorComponentUtilities" Version="1.8.0" />
+        <PackageReference Include="BlazorDownloadFile" Version="2.4.0.2" />
+        <PackageReference Include="Blazorise" Version="1.2.0" />
+        <PackageReference Include="Blazorise.Bootstrap" Version="1.2.0" />
+        <PackageReference Include="Blazorise.Icons.FontAwesome" Version="1.2.0" />
+        <PackageReference Include="DotNetZip" Version="1.16.0" />
+        <PackageReference Include="ExposedObject" Version="2.1.0" />
+        <PackageReference Include="Extensions.System.Text.Json" Version="6.0.12" />
+        <PackageReference Include="FFmpegBlazor" Version="1.0.0.7" />
+        <PackageReference Include="Flurl" Version="3.0.7" />
+        <PackageReference Include="Jurassic" Version="3.2.6" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.7" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.7" PrivateAssets="all" />
+        <PackageReference Include="MimeTypeMapOfficial" Version="1.0.17" />
         <PackageReference Include="RestEase" Version="1.5.7" />
+        <PackageReference Include="Stef.Validation" Version="0.1.1" />
         <PackageReference Include="YoutubeExplode" Version="6.2.1" />
     </ItemGroup>
     
     <ItemGroup>
+        <None Include="Web.config">
+          <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </None>
         <Watch Include="wwwroot\src\*.js" />
         <None Update="wwwroot\src\*.js" watch="true" />
     </ItemGroup>

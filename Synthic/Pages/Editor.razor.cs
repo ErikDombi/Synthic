@@ -1,6 +1,14 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using System.Net;
+using Blazor.Cropper;
+using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Microsoft.JSInterop.Implementation;
+using MimeTypes;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Processing.Processors;
+using SixLabors.ImageSharp.Processing.Processors.Drawing;
 using Synthic.Helpers;
 using Synthic.Services;
 
@@ -23,9 +31,25 @@ public partial class Editor
     
     protected override async Task OnInitializedAsync()
     {
-        await editor.ProcessVideo(YoutubeDownloadApi);
-        await JsCommunicator.Set("Album", editor.Album);
-        await JsCommunicator.Eval($"currentSongArt.style.setProperty('background', \"url('{editor.VideoMetadata.Thumbnails.OrderBy(x => x.Resolution.Area).Last().Url}') center\")");
+        
+    }
+
+    private async Task LoadVideo(string url)
+    {
+        await editor.ProcessVideo(YoutubeDownloadApi, VideoUrl, JsCommunicator);
+        
+        var thumbnail = editor.VideoMetadata.Thumbnails.OrderBy(x => x.Resolution.Area).Last();
+        var imageData = await YoutubeDownloadApi.GetBytesFromUrl(thumbnail.Url);
+
+        editor.Album.CoverArt = new Art()
+        {
+            FileName = thumbnail.Url?.Split("/")?.LastOrDefault(),
+            ContentType = MimeTypeMap.GetMimeType(Path.GetExtension(thumbnail.Url))
+        };
+        
+        await editor.Album.CoverArt.SetContentAsync(imageData);
+        
+        await JsCommunicator.Eval($"currentSongArt.style.setProperty('background', \"url('{thumbnail.Url}') center\")");
         await JsCommunicator.Eval($"currentSongArt.style.setProperty('background-size', 'cover')");
     }
 

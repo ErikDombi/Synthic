@@ -24,4 +24,10 @@ public interface IYouTubeDownloadApi
 
     [Post("GetAudioBytes")]
     public Task<byte[]> GetAudioBytesAsync([Body] AudioOnlyStreamInfo streamInfo);
+
+    [Get("GetBytesFromUrl")]
+    public Task<byte[]> GetBytesFromUrl([Query] string url);
+
+    [Post("CropImage")]
+    public Task<byte[]> CropImage([Body] byte[] image);
 }

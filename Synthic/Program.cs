@@ -1,3 +1,7 @@
+using BlazorDownloadFile;
+using Blazorise;
+using Blazorise.Bootstrap;
+using Blazorise.Icons.FontAwesome;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using RestEase;
@@ -23,7 +27,11 @@ builder.Services
         return new RestClient(httpClient).For<IYouTubeDownloadApi>();
     });
 
+builder.Services.AddBlazorDownloadFile();
 builder.Services.AddScoped<JSCommunicator>();
+builder.Services.AddBlazorise();
+builder.Services.AddBootstrapProviders();
+builder.Services.AddFontAwesomeIcons();
 builder.Services.AddScoped<EditorInstance>();
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 

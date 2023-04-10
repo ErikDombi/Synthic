@@ -85,7 +85,7 @@
 
 .editor-content {
     background: #1b1c22;
-    display: flex;
+    display: block;
     color: white;
     max-height: calc(100vh - 505px - 2.7rem);
 }
@@ -166,6 +166,7 @@
     height: 4px;
     width: 700px;
     border-radius: 2px;
+    cursor: pointer;
 }
 
 .current-progress {
@@ -208,4 +209,137 @@
     padding: 20px;
     display: flex;
     justify-content: center;
+}
+
+.s-modal {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+}
+
+.s-modal-visible {
+    display: flex !important;
+}
+
+.s-modal-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    background: #121212;
+    border-radius: 7px;
+    overflow: hidden;
+    color: white;
+    position: relative;
+}
+
+.s-modal-body {
+    flex-grow: 1;
+    width: 100%;
+}
+
+:root {
+    --modal-transition-speed: 0.4s;
+    --modal-transition-mode: ease-in-out;
+}
+
+.s-modal-footer {
+    height: max-content;
+    width: 100%;
+    background: #0F0F0F;
+    padding: 2%;
+    display: flex;
+    justify-content: end;
+    transition: width var(--modal-transition-speed) var(--modal-transition-mode);
+    transition: height var(--modal-transition-speed) var(--modal-transition-mode);
+}
+
+.btn-primary {
+    background: #3c50fa !important;
+}
+
+.s-modal-footer > .btn-primary {
+    padding-left: 25px;
+    padding-right: 25px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    box-shadow: none !important;
+}
+
+#startup-modal > .s-modal-content {
+    height: max-content;
+    width: max-content;
+}
+
+.stage1 {
+    width: 25vw;
+    height: 20vh;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+.stage2 {
+    width: 40vw;
+    height: 60vh;
+}
+
+.stage2 > .settings {
+    padding: 20px;
+}
+
+.header-img-container {
+    left: 0;
+    top: 0;
+    right: 0;
+    height: 30%;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.header-img-container > h1, h2, h3, h4, h5, h6 {
+    z-index: 1;
+    font-weight: bold;
+    text-shadow: 0px 0px 9px rgba(255,255,255,0.52);
+    letter-spacing: 1px;
+    position: absolute;
+}
+
+.header-img {
+    background: linear-gradient(180deg, rgba(18,18,18,0%) 0%, rgba(18,18,18,1) 80%), url("https://img.youtube.com/vi/P4ALDytLAXQ/hqdefault.jpg") center center / cover;
+    height: 100%;
+    width: 100%;
+    opacity: 0.6;
+    filter: blur(6px) grayscale(80%);
+    transform: scale(1.2);
+    position: relative;
+    left: 0;
+    top: 0;
+    right: 0;
+}
+
+.settings {
+    overflow-y: auto;
+    height: 70%;
+}
+
+.video-url-input {
+    width: 90%;
+    height: 3rem;
+}
+
+.description-input {
+    background: #0F0F0F;
+    color: white;
+    width: 100%;
+    min-height: 400px;
+    height: max-content;
 }

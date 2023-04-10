@@ -6,7 +6,8 @@
 }
 
 .left-sidebar {
-    max-width: 20%;
+    max-width: 30%;
+    min-width: 15%;
     height: 100%;
     overflow: auto;
     background-color: #141414;
@@ -34,6 +35,7 @@
 .subpage-content {
     width: 100%;
     overflow: auto;
+    padding: 15px;
 }
 
 .metadata {

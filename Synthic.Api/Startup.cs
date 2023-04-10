@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using Synthic.Api;
+using Synthic.Api.Extensions;
 using Synthic.Api.HttpClientHandlers;
 using YoutubeExplode;
 
@@ -45,6 +46,7 @@ public class Startup
         {
             c.SwaggerDoc("v1", new OpenApiInfo { Title = "Gateway", Version = "v1" });
         });
+        services.AddSingleton<ISerializer, Serializer>();
         services.AddCors();
         services.AddControllers();
     }
