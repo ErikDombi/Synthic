@@ -58,6 +58,10 @@ public class EditorInstance
     {
         customTimestamp ??= VideoMetadata.Description;
         Album.Tracks = GenerateTracksFromChapters(customTimestamp);
+        
+        if(Album.Tracks.Count == 0)
+            Album.Tracks.Add(new Track(VideoMetadata.Title, VideoMetadata.Author.ChannelTitle, TimeSpan.Zero));
+        
         for (int i = 0; i < Album.Tracks.Count; i++)
             Album.Tracks[i].Metadata.Track = (ushort)(i + 1);
         
@@ -74,9 +78,32 @@ public class EditorInstance
             Album.Tracks.Last().End = VideoMetadata.Duration.Value;
     }
 
+    public void DeleteTrack(string uuid) =>
+        DeleteTrack(Album.Tracks.FirstOrDefault(x => x.UUID.ToString() == uuid));
+    
+    public void DeleteTrack(Track track)
+    {
+        // We need at least 1 track
+        if (Album.Tracks.Count == 1)
+            return;
+        
+        bool isFirst = Album.Tracks.First() == track;
+        int index = Album.Tracks.IndexOf(track);
+
+        if (isFirst)
+            Album.Tracks[index + 1].Start = TimeSpan.Zero;
+        else
+            Album.Tracks[index - 1].End = track.End;
+
+        Album.Tracks.Remove(track);
+        
+        PushChangesToUI();
+    }
+
     public async Task PushChangesToUI()
     {
         await JsCommunicator.Set("Album", Album);
+        await JsCommunicator.Eval($"buildChapters({SelectorMode.ToString().ToLower()})");
     }
 
     private List<Track> GenerateTracksFromChapters(string data)
@@ -107,5 +134,19 @@ public class EditorInstance
         }
         
         return tracks;
+    }
+    
+    public bool SelectorMode { get; private set; }
+
+    public bool ToggleSelector()
+    {
+        SelectorMode = !SelectorMode;
+
+        if (SelectorMode)
+            JsCommunicator.Eval("document.querySelectorAll('.chapter').forEach(x => x.classList.add('selectable'));");
+        else
+            JsCommunicator.Eval("document.querySelectorAll('.chapter').forEach(x => x.classList.remove('selectable'));");
+        
+        return SelectorMode;
     }
 }

@@ -1,13 +1,13 @@
 ﻿.editor {
     width: 100vw;
-    height: calc(100vh - 2.7rem);
+    height: var(--editor-height);
     display: flex;
     flex-direction: column;
 }
 
 .header {
     width: 100%;
-    height: 2.7rem;
+    height: var(--header-hight);
     background: #3c50fa;
 }
 
@@ -29,26 +29,24 @@
 
 .editor-top {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     background: #1b1c22;
     width: 100%;
-}
-
-.editor-top > * {
     flex-grow: 1;
+    height: 66%;
 }
 
 .editor-nav {
-    min-width: 100%;
+    width: 100%;
+    height: 4%;
 }
 
 .nav-links {
     display: flex;
     flex-direction: row;
     justify-content: center;
-    width: 50%;
+    width: 100%;
     height: 100%;
-    margin: auto;
 }
 
 .nav-links > a {
@@ -83,19 +81,21 @@
     color: white;
 }
 
-.editor-content {
-    background: #1b1c22;
+.editor-sidebar {
+    background: #222;
     display: block;
     color: white;
-    max-height: calc(100vh - 505px - 2.7rem);
+    width: 25%;
+}
+
+.subpage {
+    width: 100%;
+    height: 96%;
 }
 
 .editor-bottom {
-    display: flex;
-    flex-direction: column;
     width: 100%;
-    max-height: 105px;
-    min-height: 105px;
+    height: var(--player-controls-height);
     background: #0f0f10;
 }
 
@@ -104,7 +104,11 @@
 }
 
 .editor-timeline {
-    background: #0f0f10;
+    background: #151515;
+    height: 15%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .editor-controls {
@@ -204,11 +208,11 @@
 }
 
 .editor-player {
-    max-height: 400px;
     background: #0f0f10;
-    padding: 20px;
     display: flex;
     justify-content: center;
+    align-items: center;
+    flex-grow: 1;
 }
 
 .s-modal {
@@ -343,3 +347,44 @@
     min-height: 400px;
     height: max-content;
 }
+
+.timeline-container {
+    width: 100%;
+    height: 100%;
+    overflow-x: scroll;
+}
+
+.timeline {
+    position: relative;
+    width: 100%;
+    height: 90%;
+    overflow: hidden;
+}
+
+.timeline:hover > .cursor {
+    visibility: visible;
+}
+
+.cursor {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    transform: translateX(-50%);
+    visibility: hidden;
+    background: #3c50fa;
+}
+
+.cursor > .timestamp {
+    position: absolute;
+    top: 7px;
+    transform: translateX(-50%);
+    font-size: 13px;
+    font-weight: bold;
+    color: white;
+    background: #3c50fa;
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+
+/* Markers are in app.css */

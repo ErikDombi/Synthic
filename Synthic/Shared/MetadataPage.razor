@@ -1,13 +1,15 @@
 ﻿@using Synthic.Helpers
 @using Synthic.Pages
 
-<img src="@GetImageSource()" style="max-width: 300px;cursor: pointer;" onclick="document.querySelector('.file-uploader').click()"/>
-<InputFile hidden="true" class="file-uploader" OnChange="@LoadFile" />
-<MetadataInput Property="Editor.Album.Metadata.Title" Title="Name" Callback="(x) => Editor.Album.Metadata.Title = x"/>
-<MetadataInput Property="Editor.Album.Metadata.Artist" Title="Artist" Callback="(x) => Editor.Album.Metadata.Artist = x"/>
-<MetadataInput Property="Editor.Album.Metadata.Composer" Title="Composer" Callback="(x) => Editor.Album.Metadata.Composer = x"/>
-<MetadataInput Property="Editor.Album.Metadata.Year" Title="Year" Callback="(x) => Editor.Album.Metadata.Year = x"/>
-<MetadataInput Property="Editor.Album.Metadata.Genre" Title="Genre" Callback="(x) => Editor.Album.Metadata.Genre = x"/>
+<div class="metadata-page">
+    <img src="@GetImageSource()" style="max-width: 300px;cursor: pointer;" onclick="document.querySelector('.file-uploader').click()"/>
+    <InputFile hidden="true" class="file-uploader" OnChange="@LoadFile" />
+    <MetadataInput Property="Editor.Album.Metadata.Title" Title="Name" Callback="(x) => Editor.Album.Metadata.Title = x"/>
+    <MetadataInput Property="Editor.Album.Metadata.Artist" Title="Artist" Callback="(x) => Editor.Album.Metadata.Artist = x"/>
+    <MetadataInput Property="Editor.Album.Metadata.Composer" Title="Composer" Callback="(x) => Editor.Album.Metadata.Composer = x"/>
+    <MetadataInput Property="Editor.Album.Metadata.Year" Title="Year" Callback="(x) => Editor.Album.Metadata.Year = x"/>
+    <MetadataInput Property="Editor.Album.Metadata.Genre" Title="Genre" Callback="(x) => Editor.Album.Metadata.Genre = x"/>
+</div>
 
 @code {
     [Inject]

@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using Blazor.Cropper;
+using FFmpegBlazor;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Microsoft.JSInterop.Implementation;
@@ -28,10 +29,13 @@ public partial class Editor
     [Inject]
     public IJSRuntime JsRuntime { get; set; }
     
-    
     protected override async Task OnInitializedAsync()
     {
+        await FFmpegFactory.Init(JsRuntime, "https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js");
         
+        Globals.ffmpeg = FFmpegFactory.CreateFFmpeg();
+        
+        await Globals.ffmpeg.Load(); // Download all dependencies
     }
 
     private async Task LoadVideo(string url)

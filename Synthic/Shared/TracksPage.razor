@@ -8,16 +8,25 @@
         }
     </div>
     <div class="subpage-content">
-        <p>Any blank fields will be inherited from the Album Metadata</p>
         <div class="metadata">
-            <img src="@GetImageSource()" style="max-width: 300px;cursor: pointer;" onclick="document.querySelector('.file-uploader').click()"/>
-            <InputFile hidden="true" class="file-uploader" OnChange="@LoadFile" />
-            <MetadataInput Property="ActiveTrack.Metadata.Title" Title="Title" Callback="(x) => { ActiveTrack.Metadata.Title = x; Editor.PushChangesToUI(); }"/>
-            <MetadataInput Property="ActiveTrack.Metadata.Artist" Placeholder="@Editor.Album.Metadata.Artist" Title="Artist" Callback="(x) => { ActiveTrack.Metadata.Artist = x; Editor.PushChangesToUI(); }"/>
-            <MetadataInput Property="ActiveTrack.Metadata.Composer" Placeholder="@Editor.Album.Metadata.Composer" Title="Composer" Callback="(x) => { ActiveTrack.Metadata.Composer = x; Editor.PushChangesToUI(); }"/>
-            <MetadataInput Property="ActiveTrack.Metadata.Year" Placeholder="@Editor.Album.Metadata.Year.ToString()" Title="Year" Callback="(x) => { ActiveTrack.Metadata.Year = x; Editor.PushChangesToUI(); }"/>
-            <MetadataInput Property="ActiveTrack.Metadata.Track" Title="Track" Callback="(x) => { ActiveTrack.Metadata.Track = x; Editor.PushChangesToUI(); }"/>
-            <MetadataInput Property="ActiveTrack.Metadata.Genre" Placeholder="@Editor.Album.Metadata.Genre" Title="Genre" Callback="(x) => { ActiveTrack.Metadata.Genre = x; Editor.PushChangesToUI(); }"/>
+            <InputFile hidden="true" class="file-uploader" OnChange="@LoadFile"/>
+            <div class="track-header">
+                <div class="img-container">
+                    <img class="album-art" src="@GetImageSource()" style="max-width: 200px;cursor: pointer;" onclick="document.querySelector('.file-uploader').click()"/>
+                </div>
+                <div class="track-data">
+                    <h3>@ActiveTrack.Metadata.Title</h3>
+                    <h5>@(ActiveTrack.Metadata.Artist ?? Editor.Album.Metadata.Artist)</h5>
+                    <a @onclick="JumpToActiveTrack">@ActiveTrack.Start.ToString("c")</a>
+                </div>
+            </div>
+            <button @onclick="() => Editor.DeleteTrack(ActiveTrack)">Delete</button>
+            <MetadataInput Class="tracks-page-metadata" Property="ActiveTrack.Metadata.Title" Title="Title" Callback="(x) => { ActiveTrack.Metadata.Title = x; Editor.PushChangesToUI(); }"/>
+            <MetadataInput Class="tracks-page-metadata" Property="ActiveTrack.Metadata.Artist" Placeholder="@Editor.Album.Metadata.Artist" Title="Artist" Callback="(x) => { ActiveTrack.Metadata.Artist = x; Editor.PushChangesToUI(); }"/>
+            <MetadataInput Class="tracks-page-metadata" Property="ActiveTrack.Metadata.Composer" Placeholder="@Editor.Album.Metadata.Composer" Title="Composer" Callback="(x) => { ActiveTrack.Metadata.Composer = x; Editor.PushChangesToUI(); }"/>
+            <MetadataInput Class="tracks-page-metadata" Property="ActiveTrack.Metadata.Year" Placeholder="@Editor.Album.Metadata.Year.ToString()" Title="Year" Callback="(x) => { ActiveTrack.Metadata.Year = x; Editor.PushChangesToUI(); }"/>
+            <MetadataInput Class="tracks-page-metadata" Property="ActiveTrack.Metadata.Track" Title="Track" Callback="(x) => { ActiveTrack.Metadata.Track = x; Editor.PushChangesToUI(); }"/>
+            <MetadataInput Class="tracks-page-metadata" Property="ActiveTrack.Metadata.Genre" Placeholder="@Editor.Album.Metadata.Genre" Title="Genre" Callback="(x) => { ActiveTrack.Metadata.Genre = x; Editor.PushChangesToUI(); }"/>
             @foreach (var metadata in ActiveTrack.Metadata.CustomMetadata)
             {
                 <MetadataInput
@@ -39,6 +48,9 @@
     [Inject]
     private EditorInstance Editor { get; set; }
 
+    [Inject]
+    public JSCommunicator JsCommunicator { get; set; }
+    
     private string StageString = "Add Custom Field";
     private string StageClass = "fill";
     private string NewFieldName = "";
@@ -111,5 +123,10 @@
     {
         ActiveTrack = track;
         StateHasChanged();
+    }
+
+    private async Task JumpToActiveTrack()
+    {
+        await JsCommunicator.Eval($"seek({ActiveTrack.Timestamp})");
     }
 }

@@ -58,10 +58,7 @@
             FFmpegFactory.Progress += ProgressChange;
         }
 
-        await FFmpegFactory.Init(Runtime, "https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js");
-        
-        ff = FFmpegFactory.CreateFFmpeg();
-        await ff.Load(); // Download all dependencies
+        ff = Globals.ffmpeg;
     }
 
     private static int NoSelection = -1;

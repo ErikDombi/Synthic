@@ -20,11 +20,15 @@ public class Track : MetadataSanitizer
 
     public Guid UUID = Guid.NewGuid();
     public string Artist { get; set; }
-    public double Timestamp { get; set; }
+    public double Timestamp => Start.TotalSeconds;
     public Metadata Metadata { get; private set; } = new();
     public TimeSpan Start;
     public TimeSpan Duration => End.Subtract(Start);
     public TimeSpan End;
+
+    public double StartInSeconds => Start.TotalSeconds;
+    public double DurationInSeconds => Duration.TotalSeconds;
+    public double EndInSeconds => End.TotalSeconds;
 
     public Art? CoverArt { get; set; } = null;
 
@@ -32,7 +36,6 @@ public class Track : MetadataSanitizer
     {
         Name = name;
         Artist = artist;
-        Timestamp = timestamp.TotalSeconds;
         
         Start = timestamp;
         

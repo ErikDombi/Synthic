@@ -9,9 +9,9 @@ public class JSCommunicator
     
     public JSCommunicator(IJSRuntime runtime)
     {
-        this.JSRuntime = runtime;
+        JSRuntime = runtime;
     }
-
+    
     public async Task Eval(string Code) => await JSRuntime.InvokeVoidAsync("window.Eval", Code);
     public async Task<T> Eval<T>(string Code) => await JSRuntime.InvokeAsync<T>("window.Eval", Code);
 

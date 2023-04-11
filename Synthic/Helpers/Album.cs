@@ -25,6 +25,10 @@ public class Album
     
     public List<Track> Tracks = new();
     public int NumTracks => Tracks.Count;
+
+    public double DurationInSeconds => Tracks.Last().End.TotalSeconds;
+
+    public TimeSpan Duration => Tracks.Last().End;
     
     public Dictionary<string, string> BuildMetadata() =>
         new[]
