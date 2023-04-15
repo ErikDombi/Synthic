@@ -352,11 +352,14 @@
     width: 100%;
     height: 100%;
     overflow-x: scroll;
+    position: relative;
 }
 
 .timeline {
-    position: relative;
-    width: 100%;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
     height: 90%;
     overflow: hidden;
 }

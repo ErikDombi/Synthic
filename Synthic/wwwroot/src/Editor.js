@@ -299,14 +299,22 @@ let buildChapters = (selectorMode) => {
     });
 }
 
+let resizingChapters = false;
+let selectedChapterPrevious = undefined;
+let selectedChapterNext = undefined;
+let mouseX = undefined;
+let mouseY = undefined;
 timeline.addEventListener('mousedown', (e) => {
+    resizingChapters = true;
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    selectedChapterPrevious = undefined;
+    selectedChapterNext = undefined;
     let chapters = document.querySelectorAll('.chapter');
-    let selectedChapterPrevious = undefined;
-    let selectedChapterNext = undefined;
     chapters.forEach(chapter => {
         let bounds = chapter.getBoundingClientRect();
-        bounds.right = bounds.left + bounds.width;
-        bounds.bottom = bounds.top + bounds.height;
+        //bounds.right = bounds.left + bounds.width;
+        //bounds.bottom = bounds.top + bounds.height;
 
         if(Math.abs(bounds.left - e.clientX) < 15 && e.clientY > bounds.top && e.clientY < bounds.bottom)
             selectedChapterNext = chapter;
@@ -314,6 +322,33 @@ timeline.addEventListener('mousedown', (e) => {
         if(Math.abs(bounds.right - e.clientX) < 15 && e.clientY > bounds.top && e.clientY < bounds.bottom)
             selectedChapterPrevious = chapter;
     });
+    if(selectedChapterPrevious) {
+        selectedChapterPrevious.style.setProperty('right', document.body.clientWidth - e.clientX + "px");
+        selectedChapterPrevious.style.setProperty('width', 'unset');
+        selectedChapterNext.style.setProperty('right', document.body.clientWidth - selectedChapterNext.getBoundingClientRect().right + "px");
+        selectedChapterNext.style.setProperty('width', 'unset');
+    }
     console.log('PREVIOUS: ', selectedChapterPrevious);
     console.log('NEXT: ', selectedChapterNext);
+});
+
+timeline.addEventListener('mousemove', (e) => {
+   if(resizingChapters) {
+       selectedChapterPrevious.style.setProperty('right', document.body.clientWidth - e.clientX + "px");
+       selectedChapterNext.style.setProperty('left', e.clientX + 'px');
+   } 
+});
+
+timeline.addEventListener('mouseup', (e) => {
+   resizingChapters = false; 
+   // TODO: SET RIGHT POSITIONS BACK TO PERCENTAGE. OTHERWISE THEY BREAK WHEN ZOOMING
+});
+
+let scale = 0.0;
+timeline.addEventListener('wheel', (e) => {
+    scale -= (e.deltaY / 100);
+    console.log('deltaY: ', e.deltaY);
+    console.log('scale: ', scale);
+    timeline.style.setProperty('left', 0 - scale + 'px')
+    timeline.style.setProperty('right', 0 - scale + 'px')
 });
