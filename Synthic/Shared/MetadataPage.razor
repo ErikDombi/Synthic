@@ -2,8 +2,10 @@
 @using Synthic.Pages
 
 <div class="metadata-page">
-    <img src="@GetImageSource()" style="max-width: 300px;cursor: pointer;" onclick="document.querySelector('.file-uploader').click()"/>
     <InputFile hidden="true" class="file-uploader" OnChange="@LoadFile" />
+    <div class="img-container">
+        <img class="album-art" src="@GetImageSource()" style="max-width: 200px;cursor: pointer;" onclick="document.querySelector('.file-uploader').click()"/>
+    </div>
     <MetadataInput Property="Editor.Album.Metadata.Title" Title="Name" Callback="(x) => Editor.Album.Metadata.Title = x"/>
     <MetadataInput Property="Editor.Album.Metadata.Artist" Title="Artist" Callback="(x) => Editor.Album.Metadata.Artist = x"/>
     <MetadataInput Property="Editor.Album.Metadata.Composer" Title="Composer" Callback="(x) => Editor.Album.Metadata.Composer = x"/>
@@ -14,7 +16,12 @@
 @code {
     [Inject]
     private EditorInstance Editor { get; set; }
-    
+
+    protected override async Task OnInitializedAsync()
+    {
+        Globals.OnAlbumArtChanged += StateHasChanged;
+    }
+
     private string GetImageSource()
     {
         Art art = Editor.Album.CoverArt;

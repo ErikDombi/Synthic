@@ -6,7 +6,7 @@
 }
 
 .left-sidebar {
-    width: 33%;
+    width: 30%;
     height: 100%;
     overflow: auto;
     background-color: #111;
@@ -23,12 +23,20 @@
     border-bottom: 1px solid #303030;
 }
 
+.ignored {
+    background-color: #c22a2a !important;
+}
+
 .entry:last-of-type {
     border-bottom: none !important;
 }
 
 .entry:hover {
-    background-color: #242424;
+    background-color: #3b4047;
+}
+
+.active-entry {
+    background: #222;
 }
 
 .subpage-content {

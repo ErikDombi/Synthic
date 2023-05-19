@@ -13,19 +13,20 @@
 @using YoutubeExplode.Videos
 @using YoutubeExplode.Videos.Streams
 
+@{/*
+  Things we need to include here:  
+   - Export buffer array size
+   - Export format
+   - Exported ZIP file name
+   - Select Audio Stream
+*/}
+
 <h3>ExportPage</h3>
-<audio controls autoplay>
-    <source src="@url" type="audio/mp3"/>
-</audio>
-<p>Progress: @pgs</p>
-<p>URL: @url</p>
-<p>URL2: @url2</p>
-<p>StreamInfo: @(SELECTEDSTREAM?.Url ?? "")</p>
 <button @onclick="@ProcessYouTubeUrlAsync">Process</button>
 <button @onclick="@DownloadFileAsync">Download</button>
 
 <EditForm Model="AudioOnlyStreamInfos">
-    <InputRadioGroup ValueChanged="@((e) => OnAudioOnlyStreamCheckedValueChanged(e))" TValue="int" ValueExpression="() => CheckedAudioOnlyStreamInfoHashCode">
+    <InputRadioGroup ValueChanged="OnAudioOnlyStreamCheckedValueChanged" TValue="int" ValueExpression="() => CheckedAudioOnlyStreamInfoHashCode">
         @foreach (var info in AudioOnlyStreamInfos)
         {
             <br/>
@@ -165,7 +166,7 @@
             ff.WriteFile(VideoFileName, memoryStream.ToArray());
 
             Dictionary<Track, string> files = new();
-            foreach (var track in editor.Album.Tracks)
+            foreach (var track in editor.Album.Tracks.Where(x => !x.Ignored))
                 files.Add(track, await ProcessTrack(track, resultExtension));
 
             Console.WriteLine("Done processing all files...");
@@ -173,6 +174,7 @@
             ff.UnlinkFile(VideoFileName); // We no longer need the entire video as a whole. Free up some memory
 
             Console.WriteLine("Starting creating of zip archive...");
+            // TODO: If only a single track, then just download the track, not the ZIP
             using MemoryStream zipMemoryStream = new();
             using (ZipArchive zipArchive = new ZipArchive(zipMemoryStream, ZipArchiveMode.Create, true))
             {
@@ -181,7 +183,7 @@
                     Console.WriteLine($"Archiving: {file}");
                     var buffer = await ff.ReadFile(file.Value);
                     var zipEntry = zipArchive.CreateEntry(file.Key.FileFriendlyName + resultExtension);
-                    using (Stream entryStream = zipEntry.Open())
+                    await using (Stream entryStream = zipEntry.Open())
                         await entryStream.WriteAsync(buffer, 0, buffer.Length);
                     ff.UnlinkFile(file.Value);
                     Console.WriteLine($"Done Archiving: {file}");
@@ -232,6 +234,8 @@
             parameters.Add("-metadata");
             parameters.Add($"{metadata.Key.ToLower()}={metadata.Value}");
         }
+        parameters.Add("-write_xing");
+        parameters.Add("0");
         parameters.Add(fileName);
         //parameters.AddRange(new []{"-c", "copy", fileName}); // This method is far faster, but I cannot get metadata working with it. FFMPEG does not support OPUS metadata. Odd.
         await ff.Run(parameters.ToArray());

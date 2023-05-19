@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using Blazorise;
 using Microsoft.AspNetCore.Components.Forms;
 
 namespace Synthic.Helpers;
@@ -25,6 +26,10 @@ public class Track : MetadataSanitizer
     public TimeSpan Start;
     public TimeSpan Duration => End.Subtract(Start);
     public TimeSpan End;
+
+    public bool Ignored { get; set; } = false;
+
+    public bool ToggleIgnored() => Ignored = !Ignored;
 
     public double StartInSeconds => Start.TotalSeconds;
     public double DurationInSeconds => Duration.TotalSeconds;

@@ -78,14 +78,14 @@ public class EditorInstance
             Album.Tracks.Last().End = VideoMetadata.Duration.Value;
     }
 
-    public void DeleteTrack(string uuid) =>
+    public bool DeleteTrack(string uuid) =>
         DeleteTrack(Album.Tracks.FirstOrDefault(x => x.UUID.ToString() == uuid));
     
-    public void DeleteTrack(Track track)
+    public bool DeleteTrack(Track track)
     {
         // We need at least 1 track
         if (Album.Tracks.Count == 1)
-            return;
+            return false;
         
         bool isFirst = Album.Tracks.First() == track;
         int index = Album.Tracks.IndexOf(track);
@@ -98,6 +98,8 @@ public class EditorInstance
         Album.Tracks.Remove(track);
         
         PushChangesToUI();
+
+        return true;
     }
 
     public async Task PushChangesToUI()

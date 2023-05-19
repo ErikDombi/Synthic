@@ -19,6 +19,8 @@ public class Art
         // The following code uses server side image processing
         Content = await imageData.FastCropImage();
 
+        Globals.ArtHasChanged();
+        
         // The following code uses local image processing.
         /*using var outStream = new MemoryStream();
         using (var image = Image.Load(imageData, out IImageFormat format))

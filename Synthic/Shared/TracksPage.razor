@@ -4,7 +4,7 @@
     <div class="left-sidebar">
         @foreach (var track in Editor.Album.Tracks)
         {
-            <div class="entry" @onclick="(() => LoadTrack(track))">@track.Metadata.Title</div>
+            <div class="entry @(track.Ignored ? "ignored" : "") @(ActiveTrack == track ? "active-entry" : "")" @onclick="(() => LoadTrack(track))">@track.Metadata.Title</div>
         }
     </div>
     <div class="subpage-content">
@@ -20,7 +20,10 @@
                     <a @onclick="JumpToActiveTrack">@ActiveTrack.Start.ToString("c")</a>
                 </div>
             </div>
-            <button @onclick="() => Editor.DeleteTrack(ActiveTrack)">Delete</button>
+            <hr class="w-100 my-2"/>
+            <button class="btn btn-primary w-100 my-2" @onclick="() => ActiveTrack.ToggleIgnored()">@(ActiveTrack.Ignored ? "Include Track When Exporting" : "Exclude Track When Exporting")</button>
+            <button class="btn btn-danger w-100 my-2" @onclick="DeleteActiveTrack">Delete Track</button>
+            <hr class="w-100 my-2"/>
             <MetadataInput Class="tracks-page-metadata" Property="ActiveTrack.Metadata.Title" Title="Title" Callback="(x) => { ActiveTrack.Metadata.Title = x; Editor.PushChangesToUI(); }"/>
             <MetadataInput Class="tracks-page-metadata" Property="ActiveTrack.Metadata.Artist" Placeholder="@Editor.Album.Metadata.Artist" Title="Artist" Callback="(x) => { ActiveTrack.Metadata.Artist = x; Editor.PushChangesToUI(); }"/>
             <MetadataInput Class="tracks-page-metadata" Property="ActiveTrack.Metadata.Composer" Placeholder="@Editor.Album.Metadata.Composer" Title="Composer" Callback="(x) => { ActiveTrack.Metadata.Composer = x; Editor.PushChangesToUI(); }"/>
@@ -55,6 +58,18 @@
     private string StageClass = "fill";
     private string NewFieldName = "";
 
+    void DeleteActiveTrack()
+    {
+        int trackIndex = Editor.Album.Tracks.IndexOf(ActiveTrack);
+        if(trackIndex > 0)
+            --trackIndex;
+        if (Editor.DeleteTrack(ActiveTrack))
+        {
+            ActiveTrack = Editor.Album.Tracks[trackIndex];
+            StateHasChanged();
+        }
+    }
+    
     private string GetImageSource()
     {
         Art art = ActiveTrack.CoverArt ?? Editor.Album.CoverArt;

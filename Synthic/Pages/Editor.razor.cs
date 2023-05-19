@@ -31,6 +31,9 @@ public partial class Editor
     
     protected override async Task OnInitializedAsync()
     {
+        // Wait 1 second, just to make sure SharedArrayBuffer is setup
+        await Task.Delay(1000);
+        
         await FFmpegFactory.Init(JsRuntime, "https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js");
         
         Globals.ffmpeg = FFmpegFactory.CreateFFmpeg();
@@ -41,8 +44,12 @@ public partial class Editor
     private async Task LoadVideo(string url)
     {
         await editor.ProcessVideo(YoutubeDownloadApi, VideoUrl, JsCommunicator);
-        
-        var thumbnail = editor.VideoMetadata.Thumbnails.OrderBy(x => x.Resolution.Area).Last();
+
+        var validExtensions = new[] { ".jpeg", ".jpg", ".png", ".bmp", ".tga" };
+        var thumbnail = 
+            editor.VideoMetadata.Thumbnails
+                .OrderBy(x => x.Resolution.Area)
+                .Last(x => validExtensions.Any(c => x.Url.Contains(c)));
         var imageData = await YoutubeDownloadApi.GetBytesFromUrl(thumbnail.Url);
 
         editor.Album.CoverArt = new Art()

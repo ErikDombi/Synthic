@@ -68,10 +68,13 @@
 
 <div id="startup-modal" class="s-modal @(stage != SetupStage.Complete ? "s-modal-visible" : "")">
     <div class="s-modal-content">
+        <div class="loader" style="display: @(IsLoading ? "flex" : "none");">
+            <img crossorigin="anonymous" src="https://cdn.pixabay.com/animation/2022/10/11/03/16/03-16-39-160_512.gif"/>
+        </div>
         <div class="s-modal-body">
             <div class="stage1 @(stage == SetupStage.UrlInput ? "d-flex" : "d-none")">
-                <MetadataInput Style="width: 90%;height: 3rem;" Class="video-url-input" Property="VideoUrl" Placeholder="https://www.youtube.com/watch?v=P4ALDytLAXQ" Title="Video URL" Callback="(x) => VideoUrl = x"/>
-                <span style="display: @(IsLoading ? "block" : "none");">Loading...</span>
+                <MetadataInput Style="width: 100%;height: 3rem;" Class="video-url-input" Property="VideoUrl" Placeholder="https://www.youtube.com/watch?v=_dEw2zQ7xcE" Title="Video URL" Callback="(x) => VideoUrl = x"/>
+                <button class="btn btn-primary mt-3 w-100" @onclick="LoadDemo">Get a Demo</button>
             </div>
             <div class="stage2 @(stage == SetupStage.ProjectSettings ? "d-block" : "d-none")">
                 <div class="header-img-container">
@@ -79,7 +82,27 @@
                     <div class="header-img"></div>
                 </div>
                 <div class="settings">
-                    <textarea class="description-input" value="@editor?.VideoMetadata?.Description" @onchange="(e) => customTimestampField = e.Value.ToString()"></textarea>
+                    <div class="dropdown-card">
+                        <div class="dropdown-card-header">
+                            
+                        </div>
+                        <div class="dropdown-card-body">
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="card" id="timestamp-settings">
+                        <div class="card-header">
+                            <h5>
+                                <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#timestamp-settings-collapse" aria-expanded="false" aria-controls="timestamp-settings-collapse">
+                                    Timestamp Settings
+                                </button>
+                            </h5>
+                        </div>
+                        <div class="collapse show" id="timestamp-settings-collapse" data-bs-parent="#timestamp-settings">
+                            <textarea class="description-input" value="@editor?.VideoMetadata?.Description" @onchange="(e) => customTimestampField = e.Value.ToString()"></textarea>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -102,6 +125,12 @@
 
     private SetupStage stage = SetupStage.UrlInput;
 
+    void LoadDemo()
+    {
+        VideoUrl = "https://www.youtube.com/watch?v=_dEw2zQ7xcE"; // Demo Song
+        NextStage();
+    }
+    
     void OnTextChanged(string value)
     {
         customTimestampField = value;
@@ -119,10 +148,12 @@
         
         switch (stage)
         {
+            // When "Continue" is Pressed on the "Video URL" Page
             case SetupStage.UrlInput:
                 await LoadVideo(VideoUrl);
                 break;
                 
+            // When "Continue" is Pressed on the "Project Settings" page
             case SetupStage.ProjectSettings:
                 Uri videoUri = new Uri(VideoUrl);
                 string videoId = HttpUtility.ParseQueryString(videoUri.Query).Get("v");

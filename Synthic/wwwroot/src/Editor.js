@@ -352,3 +352,12 @@ timeline.addEventListener('wheel', (e) => {
     timeline.style.setProperty('left', 0 - scale + 'px')
     timeline.style.setProperty('right', 0 - scale + 'px')
 });
+
+document.querySelectorAll('.dropdown-card').forEach(dropdown => {
+    let header = dropdown.querySelector('.dropdown-card-header');
+    let body = dropdown.querySelector('.dropdown-card-body');
+
+    header.addEventListener('click', () => {
+        let isOpen = !body.classList.contains('dropdown-card-body-hidden'); 
+    });
+});
