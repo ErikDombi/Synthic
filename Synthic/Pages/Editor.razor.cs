@@ -34,7 +34,7 @@ public partial class Editor
         // Wait 1 second, just to make sure SharedArrayBuffer is setup
         await Task.Delay(1000);
         
-        await FFmpegFactory.Init(JsRuntime, "https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js");
+        await FFmpegFactory.Init(JsRuntime, "https://unpkg.com/@ffmpeg/ffmpeg@0.12.1/dist/umd/ffmpeg.js");
         
         Globals.ffmpeg = FFmpegFactory.CreateFFmpeg();
         

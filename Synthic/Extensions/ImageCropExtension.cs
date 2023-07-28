@@ -20,11 +20,20 @@ public static class ImageCropExtension
 
     public static async Task<byte[]> FastCropImage(this IYouTubeDownloadApi api, byte[] image)
     {
-        var img = Image.Load(image, out IImageFormat format);
-        if (img.Width == img.Height)
-            return image;
+        try
+        {
+            var img = Image.Load(image, out IImageFormat format);
+            if (img.Width == img.Height)
+                return image;
 
-        return await api.CropImage(image);
+            return await api.CropImage(image);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+
+        return null;
     }
 
     public static async Task<byte[]> FastCropImage(this IYouTubeDownloadApi api, MemoryStream image) =>

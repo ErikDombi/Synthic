@@ -2,15 +2,36 @@
 @using Synthic.Pages
 
 <div class="metadata-page">
-    <InputFile hidden="true" class="file-uploader" OnChange="@LoadFile" />
-    <div class="img-container">
-        <img class="album-art" src="@GetImageSource()" style="max-width: 200px;cursor: pointer;" onclick="document.querySelector('.file-uploader').click()"/>
+    <InputFile hidden="true" class="file-uploader" OnChange="@LoadFile"/>
+    <div class="art-container">
+        <div class="track-art" style="--image: url(@GetImageSource())">
+            
+        </div>
+        <div class="art-box">
+            <div class="art-parent" onclick="document.querySelector('.file-uploader').click()">
+                <img src="@GetImageSource()" class="art"/>
+            </div>
+            <div class="album-details">
+                <h2>@Editor.Album.Metadata.Title</h2>
+                <h4>@Editor.Album.Artist</h4>
+                @if (Editor.Album.Tracks.Count == 1)
+                {
+                    <h5>Single</h5>
+                }
+                else
+                {
+                    <h5>Album - @Editor.Album.Tracks.Count Songs</h5>
+                }
+            </div>
+        </div>
     </div>
-    <MetadataInput Property="Editor.Album.Metadata.Title" Title="Name" Callback="(x) => Editor.Album.Metadata.Title = x"/>
-    <MetadataInput Property="Editor.Album.Metadata.Artist" Title="Artist" Callback="(x) => Editor.Album.Metadata.Artist = x"/>
-    <MetadataInput Property="Editor.Album.Metadata.Composer" Title="Composer" Callback="(x) => Editor.Album.Metadata.Composer = x"/>
-    <MetadataInput Property="Editor.Album.Metadata.Year" Title="Year" Callback="(x) => Editor.Album.Metadata.Year = x"/>
-    <MetadataInput Property="Editor.Album.Metadata.Genre" Title="Genre" Callback="(x) => Editor.Album.Metadata.Genre = x"/>
+    <div class="metadata">
+        <MetadataInput Property="Editor.Album.Metadata.Title" Title="Name" Callback="(x) => { Editor.Album.Metadata.Title = x; StateHasChanged(); }"/>
+        <MetadataInput Property="Editor.Album.Metadata.Artist" Title="Artist" Callback="(x) => { Editor.Album.Metadata.Artist = x; StateHasChanged(); }"/>
+        <MetadataInput Property="Editor.Album.Metadata.Composer" Title="Composer" Callback="(x) => { Editor.Album.Metadata.Composer = x; StateHasChanged(); }"/>
+        <MetadataInput Property="Editor.Album.Metadata.Year" Title="Year" Callback="(x) => { Editor.Album.Metadata.Year = x; StateHasChanged(); }"/>
+        <MetadataInput Property="Editor.Album.Metadata.Genre" Title="Genre" Callback="(x) => { Editor.Album.Metadata.Genre = x; StateHasChanged(); }"/>
+    </div>
 </div>
 
 @code {

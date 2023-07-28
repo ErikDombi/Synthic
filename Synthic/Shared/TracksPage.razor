@@ -8,12 +8,13 @@
         }
     </div>
     <div class="subpage-content">
+        <InputFile hidden="true" class="file-uploader" OnChange="@LoadFile"/>
+        <div class="art-container">
+            <div class="track-art" style="--image: url(@GetImageSource())">
+            </div>
+        </div>
         <div class="metadata">
-            <InputFile hidden="true" class="file-uploader" OnChange="@LoadFile"/>
             <div class="track-header">
-                <div class="img-container">
-                    <img class="album-art" src="@GetImageSource()" style="max-width: 200px;cursor: pointer;" onclick="document.querySelector('.file-uploader').click()"/>
-                </div>
                 <div class="track-data">
                     <h3>@ActiveTrack.Metadata.Title</h3>
                     <h5>@(ActiveTrack.Metadata.Artist ?? Editor.Album.Metadata.Artist)</h5>

@@ -6,7 +6,7 @@
 }
 
 .left-sidebar {
-    width: 30%;
+    width: 23%;
     height: 100%;
     overflow: auto;
     background-color: #111;
@@ -40,14 +40,15 @@
 }
 
 .subpage-content {
-    width: 66%;
+    width: 77%;
     overflow: auto;
-    padding: 15px;
 }
 
 .metadata {
     max-height: 100%;
     width: 100%;
+    padding: 15px;
+    transform: translateY(-75px);
 }
 
 .add-metadata-btn {
@@ -101,8 +102,48 @@
 .track-header {
     width: 100%;
     height: max-content;
-    display: flex;
     gap: 10px;
+    padding: 10px;
+    border-radius: 4px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 2px 18px 0px rgba(0,0,0,40%);
+    background: rgba(0,0,0,0.5);
+}
+
+@keyframes panAndFade {
+    0% {
+        background-position: 50% 25%;
+        opacity: 0;
+    }
+    4% {
+        opacity: 1;
+    }
+    94% {
+        opacity: 1;
+    }
+    98% {
+        background-position: 50% 75%;
+        opacity: 0;
+    }
+    100% {
+        opacity: 0;
+        background-position: 50% 25%;
+    }
+}
+
+.art-container {
+    width: 100%;
+    height: 225px;
+    background: black;
+}
+
+.track-art {
+    width: 100%;
+    height: 100%;
+    background: var(--image);
+    background-size: cover;
+    animation: panAndFade 30s linear infinite;
+    filter: opacity(0.7);
 }
 
 .track-data {

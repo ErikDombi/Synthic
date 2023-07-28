@@ -19,6 +19,17 @@ public class Track : MetadataSanitizer
         }
     }
 
+    public string FileFriendlyNameSingle
+    {
+        get
+        {
+            var fileName = Metadata.Artist + " - " + Metadata.Title;
+            foreach (var c in Path.GetInvalidFileNameChars()) 
+                fileName = fileName.Replace(c, '-');
+            return fileName;
+        }
+    }
+
     public Guid UUID = Guid.NewGuid();
     public string Artist { get; set; }
     public double Timestamp => Start.TotalSeconds;

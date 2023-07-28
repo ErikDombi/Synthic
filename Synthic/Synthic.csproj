@@ -14,6 +14,7 @@
         <PackageReference Include="BlazorDownloadFile" Version="2.4.0.2" />
         <PackageReference Include="Blazorise" Version="1.2.0" />
         <PackageReference Include="Blazorise.Bootstrap" Version="1.2.0" />
+        <PackageReference Include="Blazorise.Components" Version="1.2.0" />
         <PackageReference Include="Blazorise.Icons.FontAwesome" Version="1.2.0" />
         <PackageReference Include="DotNetZip" Version="1.16.0" />
         <PackageReference Include="ExposedObject" Version="2.1.0" />

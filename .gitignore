@@ -4,3 +4,7 @@ obj/
 riderModule.iml
 /_ReSharper.Caches/
 node_modules/
+.idea/
+.vs/
+.vscode/
+GitIgnored/

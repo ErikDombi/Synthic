@@ -104,12 +104,11 @@ a, .btn-link {
     display: inline-block;
 }
 
-.img-container {
+.art-parent {
     position: relative;
-    width: max-content;
 }
 
-.img-container:hover::before {
+.art-parent:hover::before {
     content: "Upload Art";
     position: absolute;
     top: 0;
@@ -130,6 +129,7 @@ a, .btn-link {
     filter: invert(1);
     z-index: 1;
     justify-content: center;
+    cursor: pointer;
 }
 
 .img-container::before {

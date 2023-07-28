@@ -8,7 +8,7 @@ public class Album
     {
         get
         {
-            var fileName = Name;
+            var fileName = Metadata.Artist + " - " + Metadata.Title;
             foreach (var c in Path.GetInvalidFileNameChars()) 
                 fileName = fileName.Replace(c, '-');
             return fileName;
