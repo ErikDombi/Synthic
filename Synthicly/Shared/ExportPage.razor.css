@@ -1,0 +1,83 @@
+﻿.export-page {
+    padding: 1em;
+}
+
+.field {
+    background: #3c50fa;
+    border-radius: 4px;
+    width: 100%;
+}
+
+.field-title {
+    padding: 7px;
+    display: block;
+    font-size: 1.15rem;
+    font-weight: bold;
+}
+
+::deep .dropdown-list {
+    width: 100%;
+    cursor: pointer;
+}
+
+::deep .dropdown.show > .dropdown-toggle {
+    border-radius: 0 0 0 0 !important;
+}
+
+::deep .dropdown-toggle {
+    width: 100% !important;
+    border-radius: 0 0 4px 4px !important;
+    box-shadow: none !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    border: none !important;
+    background: #1d1d1d !important;
+}
+
+::deep .dropdown-menu {
+    position: relative !important;
+    transform: unset !important;
+    width: 100% !important;
+    border-radius: 0 0 0.25rem 0.25rem !important;
+    background: #383838 !important;
+    color: white !important;
+}
+
+::deep .dropdown-menu .dropdown-item {
+    color: gainsboro !important;
+}
+
+::deep .dropdown-menu .dropdown-item:hover {
+    color: gainsboro !important;
+    background-color: #414141 !important;
+}
+
+.export-page > * {
+    margin-bottom: 15px;
+}
+
+.export-modal {
+    position: fixed;
+    margin: 0;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.export-modal-body {
+    background: #121212;
+    width: 500px;
+    height: 200px;
+    border-radius: 8px;
+    padding: 8px;
+}
+
+.progress-item {
+    margin-bottom: 10px;
+}

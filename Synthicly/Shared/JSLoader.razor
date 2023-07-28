@@ -1,0 +1,17 @@
+﻿@using Microsoft.JSInterop.Implementation
+@using Microsoft.Maui.Controls.PlatformConfiguration
+@code {
+
+    [Inject]
+    public IJSRuntime JSRuntime { get; set; }
+
+    [Parameter]
+    public string ComponentName { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (firstRender)
+            await JSRuntime.InvokeVoidAsync("import", "./js/" + ComponentName + ".js");
+    }
+}

@@ -4,8 +4,8 @@ using AngleSharp.Common;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Synthic.Extensions;
-using Synthic.Helpers;
 using Synthic.Services;
+using Synthicly.Helpers;
 using YoutubeExplode.Videos;
 using YoutubeExplode.Videos.Streams;
 

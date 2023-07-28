@@ -1,0 +1,146 @@
+﻿<div class="tracks-page">
+    <div class="left-sidebar">
+        @foreach (var track in Editor.Album.Tracks)
+        {
+            <div class="entry @(track.Ignored ? "ignored" : "") @(ActiveTrack == track ? "active-entry" : "")" @onclick="(() => LoadTrack(track))">@track.Metadata.Title</div>
+        }
+    </div>
+    <div class="subpage-content">
+        <InputFile hidden="true" class="file-uploader" OnChange="@LoadFile"/>
+        <div class="art-container">
+            <div class="track-art" style="--image: url(@GetImageSource())">
+            </div>
+        </div>
+        <div class="metadata">
+            <div class="track-header">
+                <div class="track-data">
+                    <h3>@ActiveTrack.Metadata.Title</h3>
+                    <h5>@(ActiveTrack.Metadata.Artist ?? Editor.Album.Metadata.Artist)</h5>
+                    <a @onclick="JumpToActiveTrack">@ActiveTrack.Start.ToString("c")</a>
+                </div>
+            </div>
+            <hr class="w-100 my-2"/>
+            <button class="btn btn-primary w-100 my-2" @onclick="() => ActiveTrack.ToggleIgnored()">@(ActiveTrack.Ignored ? "Include Track When Exporting" : "Exclude Track When Exporting")</button>
+            <button class="btn btn-danger w-100 my-2" @onclick="DeleteActiveTrack">Delete Track</button>
+            <hr class="w-100 my-2"/>
+            <MetadataInput Class="tracks-page-metadata" Property="ActiveTrack.Metadata.Title" Title="Title" Callback="(x) => { ActiveTrack.Metadata.Title = x; Editor.PushChangesToUI(); }"/>
+            <MetadataInput Class="tracks-page-metadata" Property="ActiveTrack.Metadata.Artist" Placeholder="@Editor.Album.Metadata.Artist" Title="Artist" Callback="(x) => { ActiveTrack.Metadata.Artist = x; Editor.PushChangesToUI(); }"/>
+            <MetadataInput Class="tracks-page-metadata" Property="ActiveTrack.Metadata.Composer" Placeholder="@Editor.Album.Metadata.Composer" Title="Composer" Callback="(x) => { ActiveTrack.Metadata.Composer = x; Editor.PushChangesToUI(); }"/>
+            <MetadataInput Class="tracks-page-metadata" Property="ActiveTrack.Metadata.Year" Placeholder="@Editor.Album.Metadata.Year.ToString()" Title="Year" Callback="(x) => { ActiveTrack.Metadata.Year = x; Editor.PushChangesToUI(); }"/>
+            <MetadataInput Class="tracks-page-metadata" Property="ActiveTrack.Metadata.Track" Title="Track" Callback="(x) => { ActiveTrack.Metadata.Track = x; Editor.PushChangesToUI(); }"/>
+            <MetadataInput Class="tracks-page-metadata" Property="ActiveTrack.Metadata.Genre" Placeholder="@Editor.Album.Metadata.Genre" Title="Genre" Callback="(x) => { ActiveTrack.Metadata.Genre = x; Editor.PushChangesToUI(); }"/>
+            @foreach (var metadata in ActiveTrack.Metadata.CustomMetadata)
+            {
+                <MetadataInput
+                    Property="metadata.Value"
+                    Title="@metadata.Key"
+                    Callback="(x) => ActiveTrack.Metadata.CustomMetadata[metadata.Key] = x"
+                    Custom="true"
+                    OnDelete="() => { ActiveTrack.Metadata.CustomMetadata.Remove(metadata.Key); StateHasChanged(); }"/>
+            }
+            <div class="add-metadata-btn">
+                <input class="absolute custom-metadata-name" @bind="NewFieldName" placeholder="Field Name"/>
+                <button class="absolute custom-metadata-add @StageClass" @onclick="NextStage">@StageString</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Inject]
+    private EditorInstance Editor { get; set; }
+
+    [Inject]
+    public JSCommunicator JsCommunicator { get; set; }
+    
+    private string StageString = "Add Custom Field";
+    private string StageClass = "fill";
+    private string NewFieldName = "";
+
+    void DeleteActiveTrack()
+    {
+        int trackIndex = Editor.Album.Tracks.IndexOf(ActiveTrack);
+        if(trackIndex > 0)
+            --trackIndex;
+        if (Editor.DeleteTrack(ActiveTrack))
+        {
+            ActiveTrack = Editor.Album.Tracks[trackIndex];
+            StateHasChanged();
+        }
+    }
+    
+    private string GetImageSource()
+    {
+        Art art = ActiveTrack.CoverArt ?? Editor.Album.CoverArt;
+
+        if (art is null)
+            return "/img/pending.jpg";
+
+        return $"data:{art.ContentType};base64,{Convert.ToBase64String(art.Content)}";
+    }
+    
+    private void LoadFile(InputFileChangeEventArgs e)
+    {
+        Task.Run(async () =>
+        {
+            try
+            {
+                var artFile = ActiveTrack.UUID + Path.GetExtension(e.File.Name);
+                using (var artMemoryStream = new MemoryStream())
+                {
+                    var stream = e.File.OpenReadStream(15000000L);
+                    await stream.CopyToAsync(artMemoryStream);
+
+                    ActiveTrack.CoverArt = new Art()
+                    {
+                        FileName = artFile,
+                        ContentType = e.File.ContentType
+                    };
+                    await ActiveTrack.CoverArt.SetContentAsync(artMemoryStream);
+                    
+                    StateHasChanged();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        });
+    }
+    
+    private void NextStage()
+    {
+        switch (StageClass)
+        {
+            case "fill":
+                StageClass = "right";
+                StageString = "Add";
+                break;
+            case "right":
+                StageClass = "fill";
+                StageString = "Add Custom Field";
+                if(!string.IsNullOrWhiteSpace(NewFieldName) && !ActiveTrack.BuildMetadata(Editor.Album).Keys.Select(x => x.ToLower()).Contains(NewFieldName.ToLower()))
+                    ActiveTrack.Metadata.CustomMetadata.Add(NewFieldName, "");
+                NewFieldName = "";
+                break;
+        }
+    }
+    
+    private Track ActiveTrack;
+
+    protected override void OnParametersSet()
+    {
+        ActiveTrack = Editor.Album.Tracks.First();
+    }
+    
+    private void LoadTrack(Track track)
+    {
+        ActiveTrack = track;
+        StateHasChanged();
+    }
+
+    private async Task JumpToActiveTrack()
+    {
+        await JsCommunicator.Eval($"seek({ActiveTrack.Timestamp})");
+    }
+}

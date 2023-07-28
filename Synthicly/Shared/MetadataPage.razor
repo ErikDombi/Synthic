@@ -1,0 +1,81 @@
+﻿<div class="metadata-page">
+    <InputFile hidden="true" class="file-uploader" OnChange="@LoadFile"/>
+    <div class="art-container">
+        <div class="track-art" style="--image: url(@GetImageSource())">
+            
+        </div>
+        <div class="art-box">
+            <div class="art-parent" onclick="document.querySelector('.file-uploader').click()">
+                <img src="@GetImageSource()" class="art"/>
+            </div>
+            <div class="album-details">
+                <h2>@Editor.Album.Metadata.Title</h2>
+                <h4>@Editor.Album.Artist</h4>
+                @if (Editor.Album.Tracks.Count == 1)
+                {
+                    <h5>Single</h5>
+                }
+                else
+                {
+                    <h5>Album - @Editor.Album.Tracks.Count Songs</h5>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="metadata">
+        <MetadataInput Property="Editor.Album.Metadata.Title" Title="Name" Callback="(x) => { Editor.Album.Metadata.Title = x; StateHasChanged(); }"/>
+        <MetadataInput Property="Editor.Album.Metadata.Artist" Title="Artist" Callback="(x) => { Editor.Album.Metadata.Artist = x; StateHasChanged(); }"/>
+        <MetadataInput Property="Editor.Album.Metadata.Composer" Title="Composer" Callback="(x) => { Editor.Album.Metadata.Composer = x; StateHasChanged(); }"/>
+        <MetadataInput Property="Editor.Album.Metadata.Year" Title="Year" Callback="(x) => { Editor.Album.Metadata.Year = x; StateHasChanged(); }"/>
+        <MetadataInput Property="Editor.Album.Metadata.Genre" Title="Genre" Callback="(x) => { Editor.Album.Metadata.Genre = x; StateHasChanged(); }"/>
+    </div>
+</div>
+
+@code {
+    [Inject]
+    private EditorInstance Editor { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Globals.OnAlbumArtChanged += StateHasChanged;
+    }
+
+    private string GetImageSource()
+    {
+        Art art = Editor.Album.CoverArt;
+
+        if (art is null)
+            return "/img/pending.jpg";
+
+        return $"data:{art.ContentType};base64,{Convert.ToBase64String(art.Content)}";
+    }
+    
+    private void LoadFile(InputFileChangeEventArgs e)
+    {
+        Task.Run(async () =>
+        {
+            try
+            {
+                var artFile = Editor.Album.UUID + Path.GetExtension(e.File.Name);
+                using (var artMemoryStream = new MemoryStream())
+                {
+                    var stream = e.File.OpenReadStream(15000000L);
+                    await stream.CopyToAsync(artMemoryStream);
+
+                    Editor.Album.CoverArt = new Art()
+                    {
+                        FileName = artFile,
+                        ContentType = e.File.ContentType
+                    };
+                    Editor.Album.CoverArt.SetContentAsync(artMemoryStream);
+                    
+                    StateHasChanged();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        });
+    }
+}

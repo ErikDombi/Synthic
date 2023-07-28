@@ -1,0 +1,402 @@
+﻿.editor {
+    width: 100vw;
+    height: var(--editor-height);
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    width: 100%;
+    height: var(--header-hight);
+    background: #3c50fa;
+}
+
+.header > span {
+    font-size: 1.5rem;
+    font-weight: lighter;
+    margin: 0.2rem 1.1rem;
+    display: block;
+    color: lightgray;
+}
+
+.header > span > span {
+    color: white;
+}
+
+.editor > * {
+    flex-grow: 1;
+}
+
+.editor-top {
+    display: flex;
+    flex-direction: row;
+    background: #1b1c22;
+    width: 100%;
+    flex-grow: 1;
+    height: 66%;
+}
+
+.editor-nav {
+    width: 100%;
+    height: 4%;
+}
+
+.nav-links {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.nav-links > a {
+    text-align: center;
+    width: 100%;
+    color: white;
+    font-size: 1.3rem;
+    padding: 4px;
+    font-weight: 200;
+    cursor: default;
+    text-decoration: none;
+    background: #151515;
+}
+
+.nav-active-page {
+    background: #222222 !important;
+}
+
+.nav-links > a:hover {
+    background: #23242a;
+    color: white;
+}
+
+.editor-sidebar {
+    background: #222;
+    display: block;
+    color: white;
+    width: 35%;
+}
+
+.subpage {
+    width: 100%;
+    height: 96%;
+}
+
+.editor-bottom {
+    width: 100%;
+    height: var(--player-controls-height);
+    background: #0f0f10;
+}
+
+.editor-bottom > * {
+    flex-grow: 1;
+}
+
+.editor-timeline {
+    background: #151515;
+    height: 15%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.editor-controls {
+    max-height: 60px;
+    min-height: 60px;
+    background: #0f0f10;
+    border-top: 1px solid #505050;
+    display: flex;
+    flex-direction: row;
+}
+
+.controls {
+    display: flex;
+    flex-direction: row;
+    margin: auto;
+    color: white;
+}
+
+.controls > * {
+    margin: auto;
+    margin-right: 15px !important;
+}
+
+.current-track {
+    display: flex;
+    flex-direction: row;
+    margin: auto;
+}
+
+.track-art {
+    width: auto;
+    height: 42px;
+    aspect-ratio: 1;
+    background-size: cover;
+    background: url("https://i1.sndcdn.com/artworks-Mf7j8QGyMBOOBohO-TOx8Ug-t500x500.jpg") center;
+    border-radius: 6px;
+}
+
+.track-info {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+    margin: auto;
+    text-align: right;
+    min-width: 200px;
+    margin-right: 10px;
+}
+
+.track-title {
+    color: white;
+}
+
+.track-artist {
+    color: gray;
+}
+
+.music-progress-bar {
+    background: darkgray;
+    height: 4px;
+    width: 700px;
+    border-radius: 2px;
+    cursor: pointer;
+}
+
+.current-progress {
+    background: #3c50fa;
+    height: 100%;
+    width: 34.7%;
+    border-radius: 2px;
+    transition: width 0.2s ease;
+    box-shadow: 0px 0px 9px 3px rgb(60 79 250 / 47%);
+    pointer-events: none;
+}
+
+.h-div {
+    height: 30px;
+    width: 2px;
+    background: #585858;
+    border-radius: 2px;
+    margin-left: 20px;
+    margin-right: 30px !important;
+}
+
+.icon {
+    font-size: 1.6rem;
+    font-family: "Segoe UI Symbol", serif;
+    cursor: pointer;
+    user-select: none;
+    padding-bottom: 4px;
+}
+
+.player {
+    margin: auto;
+    aspect-ratio: 16 / 9;
+    width: auto;
+    height: 80%;
+}
+
+.editor-player {
+    background: #0f0f10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+}
+
+.s-modal {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+}
+
+.s-modal-visible {
+    display: flex !important;
+}
+
+.s-modal-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    background: #121212;
+    border-radius: 7px;
+    overflow: hidden;
+    color: white;
+    position: relative;
+}
+
+.loader {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background: rgba(30,30,30,0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+    filter: hue-rotate(270deg);
+}
+
+.loader > img {
+    height: 150px;
+    aspect-ratio: 1;
+}
+
+.s-modal-body {
+    flex-grow: 1;
+    width: 100%;
+}
+
+:root {
+    --modal-transition-speed: 0.4s;
+    --modal-transition-mode: ease-in-out;
+}
+
+.s-modal-footer {
+    height: max-content;
+    width: 100%;
+    background: #0F0F0F;
+    padding: 2%;
+    display: flex;
+    justify-content: end;
+    transition: width var(--modal-transition-speed) var(--modal-transition-mode);
+    transition: height var(--modal-transition-speed) var(--modal-transition-mode);
+}
+
+.btn-primary {
+    background: #3c50fa !important;
+}
+
+.s-modal-footer > .btn-primary {
+    padding-left: 25px;
+    padding-right: 25px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    box-shadow: none !important;
+}
+
+#startup-modal > .s-modal-content {
+    height: max-content;
+    width: max-content;
+}
+
+.stage1 {
+    width: 25vw;
+    height: 20vh;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+.stage2 {
+    width: 40vw;
+    height: 60vh;
+}
+
+.stage2 > .settings {
+    padding: 20px;
+}
+
+.header-img-container {
+    left: 0;
+    top: 0;
+    right: 0;
+    height: 30%;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.header-img-container > h1, h2, h3, h4, h5, h6 {
+    z-index: 1;
+    font-weight: bold;
+    text-shadow: 0px 0px 9px rgba(255,255,255,0.52);
+    letter-spacing: 1px;
+    position: absolute;
+    text-align: center;
+}
+
+.header-img {
+    background: linear-gradient(180deg, rgba(18,18,18,0%) 0%, rgba(18,18,18,1) 80%), url("https://img.youtube.com/vi/P4ALDytLAXQ/hqdefault.jpg") center center / cover;
+    height: 100%;
+    width: 100%;
+    opacity: 0.6;
+    filter: blur(6px) grayscale(80%);
+    transform: scale(1.2);
+    position: relative;
+    left: 0;
+    top: 0;
+    right: 0;
+}
+
+.settings {
+    overflow-y: auto;
+    height: 70%;
+}
+
+.video-url-input {
+    width: 90%;
+    height: 3rem;
+}
+
+.description-input {
+    background: #0F0F0F;
+    color: white;
+    width: 100%;
+    min-height: 400px;
+    height: max-content;
+}
+
+.timeline-container {
+    width: 100%;
+    height: 100%;
+    overflow-x: scroll;
+    position: relative;
+}
+
+.timeline {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 90%;
+    overflow: hidden;
+}
+
+.timeline:hover > .cursor {
+    visibility: visible;
+}
+
+.cursor {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    transform: translateX(-50%);
+    visibility: hidden;
+    background: #3c50fa;
+}
+
+.cursor > .timestamp {
+    position: absolute;
+    top: 7px;
+    transform: translateX(-50%);
+    font-size: 13px;
+    font-weight: bold;
+    color: white;
+    background: #3c50fa;
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+
+/* Markers are in app.css */

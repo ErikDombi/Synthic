@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synthic", "Synthic\Synthic.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synthic.Api", "Synthic.Api\Synthic.Api.csproj", "{B777CF97-49E4-4C91-9C51-352458247FBA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synthicly", "Synthicly\Synthicly.csproj", "{E38965D1-D440-48F7-B56A-2F29BE4953D7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{B777CF97-49E4-4C91-9C51-352458247FBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B777CF97-49E4-4C91-9C51-352458247FBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B777CF97-49E4-4C91-9C51-352458247FBA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E38965D1-D440-48F7-B56A-2F29BE4953D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E38965D1-D440-48F7-B56A-2F29BE4953D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E38965D1-D440-48F7-B56A-2F29BE4953D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E38965D1-D440-48F7-B56A-2F29BE4953D7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
