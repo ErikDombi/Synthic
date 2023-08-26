@@ -1,0 +1,172 @@
+﻿@page "/Editor"
+@using Synthic.Client.Helpers
+@using System.Web
+@using System.Runtime.CompilerServices
+
+<div class="header">
+    <span><span class="fw-bold">Synthic</span>.fm</span>
+</div>
+
+<div class="editor">
+    <!-- Tabs and Content area -->
+    <div class="editor-top">
+        <div class="editor-sidebar">
+            <div class="editor-nav">
+                <div class="nav-links">
+                    <a class="nav-active-page" @onclick="@(() => SelectPage(typeof(MetadataPage)))">Album</a>
+                    <a @onclick="@(() => SelectPage(typeof(TracksPage)))">Tracks</a>
+                    <a @onclick="@(() => SelectPage(typeof(ExportPage)))">Export</a>
+                </div>
+            </div>
+            <div class="subpage">
+                <DynamicComponent Type="@selectedPage"></DynamicComponent>
+            </div>
+        </div>
+        <div class="editor-player">
+            <div class="player" id="player"></div>
+        </div>
+    </div>
+    
+    <div class="editor-timeline">
+         <div class="timeline-container">
+             <div class="timeline">
+                 <div class="cursor">
+                     <span class="timestamp">00:00:00</span>
+                 </div>
+             </div>
+             <button @onclick="() => editor.ToggleSelector()">Delete Track</button>
+        </div>
+    </div>
+</div>
+
+ <!-- Timeline & Track Control Area -->
+<div class="editor-bottom">
+    <div class="editor-controls">
+        <div class="controls">
+            <div class="current-track">
+                <div class="track-info">
+                    <span class="track-title">-</span>
+                    <span class="track-artist">-</span>
+                </div>
+                <div class="track-art">
+
+                </div>
+            </div>
+            <div class="h-div"></div>
+            <span @onclick="@LastTrack" class="icon">⏮</span>
+            <span class="icon playPauseButton">▶</span>
+            <span @onclick="@NextTrack" class="icon">⏭</span>
+            <span class="icon repeat-btn">🔂</span>
+            <div class="h-div"></div>
+            <span class="current-time">00:00:00</span>
+            <div class="music-progress-bar">
+                <div class="current-progress"></div>
+            </div>
+            <span class="song-length">--:--:--</span>
+        </div>
+    </div>
+</div>
+
+<div id="startup-modal" class="s-modal @(stage != SetupStage.Complete ? "s-modal-visible" : "")">
+    <div class="s-modal-content">
+        <div class="loader" style="display: @(IsLoading ? "flex" : "none");">
+            <img crossorigin="anonymous" src="https://cdn.pixabay.com/animation/2022/10/11/03/16/03-16-39-160_512.gif"/>
+        </div>
+        <div class="s-modal-body">
+            <div class="stage1 @(stage == SetupStage.UrlInput ? "d-flex" : "d-none")">
+                <MetadataInput Style="width: 100%;height: 3rem;" Class="video-url-input" Property="VideoUrl" Placeholder="https://www.youtube.com/watch?v=_dEw2zQ7xcE" Title="Video URL" Callback="(x) => VideoUrl = x"/>
+                <button class="btn btn-primary mt-3 w-100" @onclick="LoadDemo">Get a Demo</button>
+            </div>
+            <div class="stage2 @(stage == SetupStage.ProjectSettings ? "d-block" : "d-none")">
+                <div class="header-img-container">
+                    <h1>@editor?.VideoMetadata?.Title</h1>
+                    <div class="header-img"></div>
+                </div>
+                <div class="settings">
+                    <div class="dropdown-card">
+                        <div class="dropdown-card-header">
+                            
+                        </div>
+                        <div class="dropdown-card-body">
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="card" id="timestamp-settings">
+                        <div class="card-header">
+                            <h5>
+                                <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#timestamp-settings-collapse" aria-expanded="false" aria-controls="timestamp-settings-collapse">
+                                    Timestamp Settings
+                                </button>
+                            </h5>
+                        </div>
+                        <div class="collapse show" id="timestamp-settings-collapse" data-bs-parent="#timestamp-settings">
+                            <textarea class="description-input" value="@editor?.VideoMetadata?.Description" @onchange="(e) => customTimestampField = e.Value.ToString()"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="s-modal-footer">
+            <button @onclick="NextStage" class="btn btn-primary">Continue</button>
+        </div>
+    </div>
+</div>
+
+<JSLoader ComponentName="Editor"></JSLoader>
+
+@code {
+    private string? VideoUrl;
+
+    private string? customTimestampField = "";
+
+    private bool IsLoading = false;
+    
+    private Type? selectedPage = typeof(MetadataPage);
+
+    private SetupStage stage = SetupStage.UrlInput;
+
+    void LoadDemo()
+    {
+        VideoUrl = "https://www.youtube.com/watch?v=_dEw2zQ7xcE"; // Demo Song
+        NextStage();
+    }
+    
+    void OnTextChanged(string value)
+    {
+        customTimestampField = value;
+    }
+    
+    private void SelectPage(Type type)
+    {
+        selectedPage = type;
+    }
+
+    private async Task NextStage()
+    {
+        IsLoading = true;
+        StateHasChanged();
+        
+        switch (stage)
+        {
+            // When "Continue" is Pressed on the "Video URL" Page
+            case SetupStage.UrlInput:
+                await LoadVideo(VideoUrl);
+                break;
+                
+            // When "Continue" is Pressed on the "Project Settings" page
+            case SetupStage.ProjectSettings:
+                Uri videoUri = new Uri(VideoUrl);
+                string videoId = HttpUtility.ParseQueryString(videoUri.Query).Get("v");
+            
+                await editor.PrepareEditor(string.IsNullOrWhiteSpace(customTimestampField) ? null : customTimestampField);
+                await editor.PushChangesToUI();
+                JsCommunicator.Eval($"startPlaying(\"{videoId}\")");
+                break;
+        }
+        
+        IsLoading = false;
+        ++stage;
+        StateHasChanged();
+    }
+}

@@ -1,0 +1,80 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Blazor.Cropper" Version="1.1.4" />
+        <PackageReference Include="BlazorComponentUtilities" Version="1.8.0" />
+        <PackageReference Include="BlazorDownloadFileFast" Version="0.2.0" />
+        <PackageReference Include="Blazorise" Version="1.2.0" />
+        <PackageReference Include="Blazorise.Bootstrap" Version="1.2.0" />
+        <PackageReference Include="Blazorise.Components" Version="1.2.0" />
+        <PackageReference Include="Blazorise.Icons.FontAwesome" Version="1.2.0" />
+        <PackageReference Include="DotNetZip" Version="1.16.0" />
+        <PackageReference Include="ExposedObject" Version="2.1.0" />
+        <PackageReference Include="FFmpegBlazor" Version="1.0.0.7" />
+        <PackageReference Include="Flurl" Version="3.0.7" />
+        <PackageReference Include="Jurassic" Version="3.2.6" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.5" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="7.0.5" PrivateAssets="all" />
+        <PackageReference Include="MimeTypeMapOfficial" Version="1.0.17" />
+        <PackageReference Include="RestEase" Version="1.6.4" />
+        <PackageReference Include="Stef.Validation" Version="0.1.1" />
+        <PackageReference Include="YoutubeExplode" Version="6.3.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Shared\Synthic.Shared.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="..\..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="Web.config">
+            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </None>
+        <Watch Include="wwwroot\src\*.js" />
+        <None Update="wwwroot\src\*.js" watch="true" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="wwwroot\css\app.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\bootstrap\bootstrap.min.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\bootstrap\bootstrap.min.css.map" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\open-iconic\FONT-LICENSE" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\open-iconic\font\css\open-iconic-bootstrap.min.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\open-iconic\font\fonts\open-iconic.eot" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\open-iconic\font\fonts\open-iconic.otf" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\open-iconic\font\fonts\open-iconic.svg" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\open-iconic\font\fonts\open-iconic.ttf" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\open-iconic\font\fonts\open-iconic.woff" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\open-iconic\ICON-LICENSE" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\open-iconic\README.md" />
+      <_ContentIncludedByDefault Remove="Shared\ExportPage.razor" />
+      <_ContentIncludedByDefault Remove="Shared\JSLoader.razor" />
+      <_ContentIncludedByDefault Remove="Shared\MainLayout.razor" />
+      <_ContentIncludedByDefault Remove="Shared\MetadataInput.razor" />
+      <_ContentIncludedByDefault Remove="Shared\MetadataPage.razor" />
+      <_ContentIncludedByDefault Remove="Shared\NavMenu.razor" />
+      <_ContentIncludedByDefault Remove="Shared\PlayerPage.razor" />
+      <_ContentIncludedByDefault Remove="Shared\SurveyPrompt.razor" />
+      <_ContentIncludedByDefault Remove="Shared\TracksPage.razor" />
+    </ItemGroup>
+
+    <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+        <Exec Command="npm install" WorkingDirectory="." />
+        <Exec Command="npm run build" WorkingDirectory="." />
+    </Target>
+
+</Project>
