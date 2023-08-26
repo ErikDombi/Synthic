@@ -10,6 +10,8 @@ using Synthic.Client.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
+Globals.BaseUrl = builder.HostEnvironment.BaseAddress;
+
 builder.Services
     .AddBlazorise( options =>
     {

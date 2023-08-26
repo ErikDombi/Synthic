@@ -7,9 +7,10 @@ namespace Synthic.Client.Extensions;
 
 public static class ImageCropExtension
 {
+    
     public static async Task<byte[]> FastCropImage(this byte[] image)
     {
-        var restClient = new RestClient(new HttpClient { BaseAddress = new Uri("https://localhost:44355") })
+        var restClient = new RestClient(new HttpClient { BaseAddress = new Uri(Globals.BaseUrl) })
             .For<IYouTubeDownloadApi>();
 
         return await restClient.FastCropImage(image);

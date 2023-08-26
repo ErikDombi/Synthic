@@ -10,5 +10,7 @@ public class Globals
     
     public static event AlbumArtRefreshEvent OnAlbumArtChanged;
 
+    public static string BaseUrl { get; set; }
+
     public static void ArtHasChanged() => OnAlbumArtChanged?.Invoke();
 }
