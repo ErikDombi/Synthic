@@ -9,7 +9,7 @@ using Synthic.Services;
 using YoutubeExplode.Videos;
 using YoutubeExplode.Videos.Streams;
 
-namespace Synthicly;
+namespace Synthic;
 
 public class EditorInstance
 {
@@ -32,7 +32,7 @@ public class EditorInstance
     private IEnumerable<AudioOnlyStreamInfo> AudioOnlyStreams = Enumerable.Empty<AudioOnlyStreamInfo>();
     private bool ExtractOpus = true; // TODO: Hook this property up to the frontend
     
-    public Album Album { get; set; } = new Album();
+    public Album Album { get; set; } = new();
 
     #endregion
 

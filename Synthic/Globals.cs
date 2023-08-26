@@ -1,6 +1,6 @@
 ﻿using FFmpegBlazor;
 
-namespace Synthicly;
+namespace Synthic;
 
 public class Globals
 {

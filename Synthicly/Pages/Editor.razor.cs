@@ -32,13 +32,13 @@ public partial class Editor
     protected override async Task OnInitializedAsync()
     {
         // Wait 1 second, just to make sure SharedArrayBuffer is setup
-        await Task.Delay(1000);
+        //await Task.Delay(1000);
         
-        await FFmpegFactory.Init(JsRuntime, "https://unpkg.com/@ffmpeg/ffmpeg@0.12.1/dist/umd/ffmpeg.js");
+        //await FFmpegFactory.Init(JsRuntime, "https://unpkg.com/@ffmpeg/ffmpeg@0.12.1/dist/umd/ffmpeg.js");
         
-        Globals.ffmpeg = FFmpegFactory.CreateFFmpeg();
+        //Globals.ffmpeg = FFmpegFactory.CreateFFmpeg();
         
-        await Globals.ffmpeg.Load(); // Download all dependencies
+        //await Globals.ffmpeg.Load(); // Download all dependencies
     }
 
     private async Task LoadVideo(string url)
